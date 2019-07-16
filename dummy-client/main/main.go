@@ -8,6 +8,7 @@ import (
 )
 
 const (
+	// TODO: These will be the server network information eventually
 	connHost = "localhost"
 	connPort = "3333"
 	connType = "tcp"
@@ -26,11 +27,16 @@ func main() {
 	}
 
 	for {
+		// Simple REPL that sends SQL strings to the server
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("iARCDBSM: ")
 		text, _ := reader.ReadString('\n')
 		fmt.Fprintf(conn, text+"\n")
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		fmt.Print("Message from server: " + message)
+		message, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			fmt.Println("Issue reading server response " + err.Error())
+		} else {
+			fmt.Print(message)
+		}
 	}
 }

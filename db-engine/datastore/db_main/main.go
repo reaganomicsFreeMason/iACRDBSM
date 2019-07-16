@@ -1,11 +1,13 @@
 package main
 
+// Main for testing datastore operations
+
 import (
-	"iACRDBSM/server/types"
+	types "iACRDBSM/db-engine/datastore/types"
 )
 
 func main() {
-	testDB = types.NewDataBase()
+	testDB := types.NewDataBase()
 	newTableColNames := []string{"name", "quant"}
 	newTableColTypes := []string{"Supported-Value-Type.string", "Supported-Value-Type.int"}
 	testDB.newTable

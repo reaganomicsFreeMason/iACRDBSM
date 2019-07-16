@@ -1,6 +1,10 @@
 package cores
 
-import "github.com/xwb1989/sqlparser"
+import (
+	"iACRDBSM/db-engine/codegen"
+
+	"github.com/xwb1989/sqlparser"
+)
 
 /*ProcessSQLString :
 This function defines the pipeline a SQL command string goes through
@@ -18,7 +22,7 @@ func ProcessSQLString(sqlstr string) (string, error) {
 	_ = ast
 
 	//Generate execution plan in bytecode from AST (TODO)
-	// bytecode = genByteCode(ast)
+	_ = codegen.GenByteCode(ast)
 
 	//Exectue bytecode on virtual machine and return results (TODO)
 	// results = execByteCode(bytecode)

@@ -1,16 +1,20 @@
 package types
 
+var (
+	initialNumTables = 10
+)
+
 type valueToRowMap integerSet
 
 type row []interface{}
 
-type columnInfoMap struct {
+type ColumnInfoMap struct {
 	index  int
 	values map[supportedValueType]valueToRowMap // instantiate and does type checking for us
 }
 
 type dataTable struct {
-	columnsMap  map[string]columnInfoMap // set type data structure(maps item to True since set not in go)
+	columnsMap  map[string]ColumnInfoMap // set type data structure(maps item to True since set not in go)
 	columnNames []string
 	rows        []row
 	numCol      int
@@ -21,5 +25,6 @@ type DataBase map[string]*dataTable // map from name of the table to the table i
 
 // NewDataBase creates a new data base.
 func NewDataBase() *DataBase {
-	return &DataBase{}
+	res := make(DataBase, 10)
+	return &res
 }

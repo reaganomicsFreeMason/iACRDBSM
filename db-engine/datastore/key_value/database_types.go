@@ -17,8 +17,9 @@ type ColumnInfoMap struct {
 
 type DataTable struct {
 	ColumnsMap  map[string]ColumnInfoMap // set type data structure(maps item to True since set not in go)
-	ColumnNames []string
+	ColumnNames []string                 // deleted column is signified by empty string
 	Rows        []Row
+	DeletedRows IntegerSet
 	NumCol      int
 }
 

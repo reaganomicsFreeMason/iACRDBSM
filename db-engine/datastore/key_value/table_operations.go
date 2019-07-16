@@ -163,5 +163,19 @@ func (dt *DataTable) UpdateRow(rowIndex uint64, colName string, newValue Support
 	return nil
 }
 
+func (dt *DataTable) getColumn(colName string) (*ColumnInfoMap, error) {
+	if column, found := dt.ColumnsMap[colName]; !found {
+		return nil, errors.New("No column there")
+	} else {
+		return &column, nil
+	} 
+}
+
+func (dt *DataTable) getRow(rowIndex uint64) (Row, error) {
+	if int(rowIndex) >= len(dt.Rows) {
+		return nil, errors.New("No row there")
+	} 
+	return dt.Rows[rowIndex], nil
+}
 // TODO Delete column, test, add row, delete row
 // TODO :: unmake the switch thing from function to inline; fucking annoying

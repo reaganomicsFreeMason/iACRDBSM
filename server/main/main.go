@@ -43,7 +43,6 @@ func handleClient(conn net.Conn) {
 	for {
 		//Read input string from client
 		sqlString := readInput(conn)
-
 		//Parse input string into an AST
 		ast := parseInput(sqlString)
 		_ = ast

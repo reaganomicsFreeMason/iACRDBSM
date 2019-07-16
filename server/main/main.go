@@ -4,27 +4,69 @@ import (
 	"bufio"
 	"fmt"
 	"net"
-	"strings"
+	"os"
+
+	"github.com/xwb1989/sqlparser"
+)
+
+const (
+	connHost = "localhost"
+	connPort = "3333"
+	connType = "tcp"
 )
 
 func main() {
-	fmt.Println("Running server")
+	ln, err := net.Listen(connType, connHost+":"+connPort)
 
-	// listen on all interfaces
-	ln, _ := net.Listen("tcp", ":8081")
-
-	// accept connection on port
-	conn, _ := ln.Accept()
-
-	// run loop forever (or until ctrl-c)
-	for {
-		// will listen for message to process ending in newline (\n)
-		message, _ := bufio.NewReader(conn).ReadString('\n')
-		// output message received
-		fmt.Print("Message Received:", string(message))
-		// sample process for string received
-		newmessage := strings.ToUpper(message)
-		// send new string back to client
-		conn.Write([]byte(newmessage + "\n"))
+	if err != nil {
+		fmt.Println("Error listening:", err.Error())
+		os.Exit(1)
 	}
+
+	defer ln.Close()
+
+	fmt.Println("Listening on " + connHost + ":" + connPort)
+
+	//Accept client connections
+	for {
+		conn, err := ln.Accept()
+		if err != nil {
+			fmt.Println("Error accepting incoming connection:", err.Error())
+			os.Exit(1)
+		}
+
+		handleClient(conn)
+	}
+}
+
+func handleClient(conn net.Conn) {
+	for {
+		//Read input string from client
+		sqlString := readInput(conn)
+
+		//Parse input string into an AST
+		ast := parseInput(sqlString)
+		_ = ast
+		print("generated ast!")
+		os.Exit(1)
+	}
+}
+
+func readInput(conn net.Conn) string {
+	//Read input string from client
+	message, err := bufio.NewReader(conn).ReadString('\n')
+	if err != nil {
+		fmt.Println("Error reading message from client:", err.Error())
+		os.Exit(1)
+	}
+	return message
+}
+
+func parseInput(sqlString string) sqlparser.Statement {
+	stmt, err := sqlparser.Parse(sqlString)
+	if err != nil {
+		fmt.Println("Error parsing SQL statemnt: ", err)
+		os.Exit(1)
+	}
+	return stmt
 }

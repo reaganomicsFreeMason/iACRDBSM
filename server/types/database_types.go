@@ -25,6 +25,6 @@ type DataBase map[string]*dataTable // map from name of the table to the table i
 
 // NewDataBase creates a new data base.
 func NewDataBase() *DataBase {
-	res := make(DataBase, 10)
+	res := make(DataBase, initialNumTables)
 	return &res
 }

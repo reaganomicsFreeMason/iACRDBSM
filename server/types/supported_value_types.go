@@ -16,10 +16,10 @@ package types
 // 	}
 // )
 
-func CreateSupportedIntMap() map[supportedValueType]valueToRowMap {
-	ret := make(map[SupportedInt]valueToRowMap)
-	return ret
-}
+// func CreateSupportedIntMap() map[SupportedValueType]valueToRowMap {
+// 	ret := make(map[SupportedInt]valueToRowMap)
+// 	return ret
+// }
 
 type SupportedValueType interface {
 	getName() string
@@ -30,11 +30,11 @@ type SupportedInt struct {
 	Value int
 }
 
-func (i *supportedInt) getName() string {
+func (i *SupportedInt) getName() string {
 	return "Supported-Value-Type.int"
 }
 
-func (i *supportedInt) getValue() int {
+func (i *SupportedInt) getValue() int {
 	return i.Value
 }
 
@@ -42,11 +42,11 @@ type SupportedFloat struct {
 	Value float32
 }
 
-func (f *supportedFloat) getName() string {
+func (f *SupportedFloat) getName() string {
 	return "Supported-Value-Type.float"
 }
 
-func (f *supportedFloat) getValue() float32 {
+func (f *SupportedFloat) getValue() float32 {
 	return f.Value
 }
 
@@ -54,10 +54,10 @@ type SupportedString struct {
 	Value string
 }
 
-func (s *supportedString) getName() string {
+func (s *SupportedString) getName() string {
 	return "Supported-Value-Type.string"
 }
 
-func (s *supportedString) getValue() string {
+func (s *SupportedString) getValue() string {
 	return s.Value
 }

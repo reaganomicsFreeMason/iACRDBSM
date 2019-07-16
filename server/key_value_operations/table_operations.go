@@ -10,7 +10,7 @@ var(
 	initialInfoValueSize = 10
 )
 
-func (db *DataBase) newTable(
+func (db *DataBase) NewTable(
 	tableName string,
 	columnNames,
 	columnTypes []string,
@@ -58,7 +58,7 @@ func makeDataTable(columnNames, columnTypes []string) *dataTable {
 	}
 }
 
-func (db *DataBase) deleteTable(tableName string) error {
+func (db *DataBase) DeleteTable(tableName string) error {
 	if _, err = db.getTable(tableName); err != nil {
 		return errors.New("Table not here, dumbass.")
 	} else {

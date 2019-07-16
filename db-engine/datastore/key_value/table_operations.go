@@ -34,10 +34,10 @@ func makeDataTable(columnNames, columnTypes []string) (*DataTable, error) {
 
 	// initialize map
 	for i, name := range columnNames {
-		if name == "" {
+		typeName := columnTypes[i]
+		if name == "" || typeName == "" {
 			return nil, errors.New("Fucktard user put in an empty column. SAD!")
 		}
-		typeName := columnTypes[i]
 		// var columnInfoValue map[SupportedValueType]ValueToRowMap
 		// // makeNewColumnInfoMap(typeName, &columnInfoValue)
 		// switch typeName {
@@ -144,6 +144,9 @@ func (dt *DataTable) UpdateRow(rowIndex uint64, colName string, newValue Support
 	if _, found := dt.ColumnsMap[colName]; !found {
 		return errors.New("No column there;  ")
 	}
+	if _, found := dt.DeletedRows[rowIndex]; found {
+		return errors.New("Row was deleted  ")
+	}
 	colIndex := dt.ColumnsMap[colName].Index
 	rowLen := len(dt.Rows[rowIndex])
 	var prevValue interface{}
@@ -157,7 +160,10 @@ func (dt *DataTable) UpdateRow(rowIndex uint64, colName string, newValue Support
 		prevValue = dt.Rows[rowIndex][colIndex]
 		if prevValue != nil {
 			prevValue2 := prevValue.(SupportedValueType)
-			dt.ColumnsMap[colName].Values[prevValue2][rowIndex] = false
+			delete(dt.ColumnsMap[colName].Values[prevValue2], rowIndex)
+			if len(dt.ColumnsMap[colName].Values[prevValue2]) == 0 {
+				delete(dt.ColumnsMap[colName].Values, prevValue2)
+			}
 		}
 	}
 
@@ -186,7 +192,7 @@ func (dt *DataTable) DeleteColumn(columnName string) error { // we should make s
 	return nil
 }
 
-func (dt *DataTable) deleteRow(rowIndex uint64) error {
+func (dt *DataTable) DeleteRow(rowIndex uint64) error {
 	if int(rowIndex) >= len(dt.Rows) {
 		return errors.New("Row doesn't exist, libtard")
 	} else if _, found := dt.DeletedRows[rowIndex]; found {
@@ -199,14 +205,18 @@ func (dt *DataTable) deleteRow(rowIndex uint64) error {
 			continue
 		}
 		delete(dt.ColumnsMap[colName].Values[colValue.(SupportedValueType)], rowIndex)
+		if len(dt.ColumnsMap[colName].Values[colValue.(SupportedValueType)]) == 0 {
+			delete(dt.ColumnsMap[colName].Values, colValue.(SupportedValueType))
+		}
 	}
 	return nil
 }
 
 // assume we are appending to the end of the database
-func (dt *DataTable) addRow(row Row) error {
+func (dt *DataTable) PutRow(row Row) error {
 	// should prob do some sort of error checking
 	// assume for now this row is valid at input
+	// just assume that deleted columns are silly
 	rowIndex := len(dt.Rows)
 	dt.Rows = append(dt.Rows, row)
 	for ind, colVal := range row {
@@ -214,14 +224,20 @@ func (dt *DataTable) addRow(row Row) error {
 			continue
 		}
 		colName := dt.ColumnNames[ind]
+		if colName == "" {
+			continue
+		}
 		// TODO: break up and make temp variables.
+		if _, found := dt.ColumnsMap[colName].Values[colVal.(SupportedValueType)]; !found {
+			dt.ColumnsMap[colName].Values[colVal.(SupportedValueType)] = ValueToRowMap{}
+		}
 		dt.ColumnsMap[colName].Values[colVal.(SupportedValueType)][uint64(rowIndex)] = true
 	}
 	return nil
 }
 
 // getColumn , get Row TODO
-func (dt *DataTable) getColumn(colName string) (*ColumnInfoMap, error) {
+func (dt *DataTable) GetColumn(colName string) (*ColumnInfoMap, error) {
 	if column, found := dt.ColumnsMap[colName]; !found {
 		return nil, errors.New("No column there")
 	} else {
@@ -229,9 +245,19 @@ func (dt *DataTable) getColumn(colName string) (*ColumnInfoMap, error) {
 	}
 }
 
-func (dt *DataTable) getRow(rowIndex uint64) (Row, error) {
+func (dt *DataTable) GetRow(rowIndex uint64) (Row, error) {
 	if int(rowIndex) >= len(dt.Rows) {
 		return nil, errors.New("No row there")
+	} else if _, found := dt.DeletedRows[rowIndex]; found {
+		return nil, errors.New("Boi y'all deleted this row ages ago.")
+	}
+	res := make(Row, 0, len(dt.Rows[rowIndex]))
+	for i, colName := range dt.ColumnNames {
+		if colName == "" {
+			continue
+		} else {
+			res = append(res, dt.Rows[rowIndex][i])
+		}
 	}
 	return dt.Rows[rowIndex], nil
 }

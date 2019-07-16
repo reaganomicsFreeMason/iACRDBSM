@@ -41,11 +41,11 @@ type SupportedValueTypeImpl struct {
 	Value interface{}
 }
 
-func (i *SupportedValueTypeImpl) getName() string {
+func (i SupportedValueTypeImpl) getName() string {
 	return i.Name
 }
 
-func (i *SupportedValueTypeImpl) getValue() interface{} {
+func (i SupportedValueTypeImpl) getValue() interface{} {
 	return i.Value
 }
 

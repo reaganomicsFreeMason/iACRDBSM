@@ -10,7 +10,7 @@ type row []interface{}
 
 type ColumnInfoMap struct {
 	index  int
-	values map[supportedValueType]valueToRowMap // instantiate and does type checking for us
+	values map[SupportedValueType]valueToRowMap // instantiate and does type checking for us
 }
 
 type dataTable struct {

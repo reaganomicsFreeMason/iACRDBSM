@@ -1,42 +1,42 @@
-package types 
+package types
 
-type supportedValueType interface{
+type supportedValueType interface {
 	getName() string
 	getValue() interface{}
 }
 
-type supportedInt struct{
+type supportedInt struct {
 	Value int
 }
 
-type (i *supportedInt) getName() string {
+func (i *supportedInt) getName() string {
 	return "int"
 }
 
-type (i *supportedInt) getValue() string {
+func (i *supportedInt) getValue() string {
 	return i.Value
 }
 
-type supportedFloat struct{
-	value float32
+type supportedFloat struct {
+	Value float32
 }
 
-type (f *supportedFloat) getName() string {
+func (f *supportedFloat) getName() string {
 	return "float"
 }
 
-type (f *supportedFloat) getValue() string {
+func (f *supportedFloat) getValue() string {
 	return f.Value
 }
 
-type supportedString struct{
-	value string
+type supportedString struct {
+	Value string
 }
 
-type (s *supportedString) getName() string {
+func (s *supportedString) getName() string {
 	return "string"
 }
 
-type (s *supportedString) getValue() string {
+func (s *supportedString) getValue() string {
 	return s.Value
 }

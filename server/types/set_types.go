@@ -1,3 +1,3 @@
 package types
 
-type indexSet map[uint64]bool
+type integerSet map[uint64]bool

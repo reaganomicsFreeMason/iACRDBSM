@@ -8,6 +8,7 @@ var (
 	initialInfoValueSize = 10
 	initNumCols          = 10
 	initNumRows          = 10
+	initDefaultSize      = 10
 )
 
 func (db *DataBase) NewTable(
@@ -67,7 +68,7 @@ func makeDataTable(columnNames, columnTypes []string) (*DataTable, error) {
 		columnMap,
 		columnNames,
 		rows,
-
+		make(IntegerSet, initDefaultSize),
 		len(columnNames),
 	}, nil // TODO error messages and shit
 }

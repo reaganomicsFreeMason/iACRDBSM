@@ -50,7 +50,7 @@ func makeDataTable(columnNames, columnTypes []string) *dataTable {
 			columnInfoValue,
 		}
 	}
-	rows = make([]row, initNumRows)
+	rows = make([]row, 0, initNumRows)
 	return &dataTable{
 		columnMap,
 		columnNames,

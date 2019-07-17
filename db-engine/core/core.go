@@ -37,7 +37,7 @@ func ProcessSQLString(sqlstr string) (string, error) {
 // TODO: Probably move this to a parse file with any other parse stuff we need in the future
 func parseInput(sqlString string) (*parser.SelectStmt, error) {
 	ast := &parser.SelectStmt{}
-	parseErr := parser.SqlParser.ParseString(sqlString, ast)
+	parseErr := parser.SQLParser.ParseString(sqlString, ast)
 	if parseErr != nil {
 		return nil, parseErr
 	}

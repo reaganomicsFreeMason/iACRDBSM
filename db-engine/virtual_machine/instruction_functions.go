@@ -129,7 +129,7 @@ func filter(instruction codegen.FilterOp) error {
 
 	newListOfPointers := make([]*uint32, 0, len(listOfPointers))
 	for _, formerAddress := range listOfPointers {
-		if _, found := goodIndices[formerAddress]; found {
+		if _, found := goodIndices[*formerAddress]; found {
 			newListOfPointers = append(newListOfPointers, formerAddress)
 		}
 	}

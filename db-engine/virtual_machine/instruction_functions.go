@@ -2,6 +2,7 @@ package virtual_machine
 
 import ( // fucking shit go is dumb
 
+	"errors"
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
 	"strconv"
@@ -39,7 +40,7 @@ var (
 // }
 
 // returns whether or not was successful
-func getTableInstruction(instruction codegen.GetTableOp) error {
+func getTable(instruction codegen.GetTableOp) error {
 	tableName := instruction.Tablename
 	tableAddress, err := DataBase.GetTable(tableName)
 	if err != nil {
@@ -175,3 +176,24 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 
 // TODO replace GetRedIndex is now replaced with the valid register named; put
 // them in later.
+// TODO HELLA FUCKING ERROR HANDLING
+
+func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
+	for _, instruction := range instructions {
+		instName := instruction.GetOpName()
+		switch instName {
+		case "GetTableOp":
+			getTable(instruction.(codegen.GetTableOp))
+		case "AddColumnOp":
+			addColumn(instruction.(codegen.AddColumnOp))
+		case "AddRowOp":
+			addRow(instruction.(codegen.AddRowOp))
+		case "FilterOp":
+			filter(instruction.(codegen.FilterOp))
+		default:
+			return "", errors.New("Bad instruction shit face")
+		}
+	}
+	clear()
+	return display(), nil
+}

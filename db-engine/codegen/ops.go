@@ -23,6 +23,7 @@ Empty base type for anything that is considered an instruction to
 be executed on the virtual machine.
 */
 type ByteCodeOp interface {
+	GetOpName() string
 }
 
 /*GetTableOp -
@@ -33,11 +34,19 @@ type GetTableOp struct {
 	Tablename string
 }
 
+func (o GetTableOp) GetOpName() string {
+	return "GetTableOp"
+}
+
 /*AddColumnOp -
  */
 type AddColumnOp struct {
 	// Column name to add to the query table result
 	Colname string
+}
+
+func (o AddColumnOp) GetOpName() string {
+	return "AddColumnOp"
 }
 
 /*AddRowOp -
@@ -47,9 +56,17 @@ type AddRowOp struct {
 	Idx uint32
 }
 
+func (o AddRowOp) GetOpName() string {
+	return "AddRowOp"
+}
+
 /*FilterOp -
  */
 type FilterOp struct {
 	ColName string
 	ValName string
+}
+
+func (o FilterOp) GetOpName() string {
+	return "FilterOp"
 }

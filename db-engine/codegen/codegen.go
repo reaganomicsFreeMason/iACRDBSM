@@ -15,20 +15,20 @@ machine to carry out the sql command. The bytecode langauge
 is defined in codegen/ops.go
 */
 func GenByteCode(stmt sqlparser.Statement) []ByteCodeOp {
-	insns := make([]ByteCodeOp, 0, bigcap)
-	switch stmt := stmt.(type) {
-	case *sqlparser.Select:
-		visitSelect(*stmt)
-	case *sqlparser.Insert:
-		_ = stmt
-	}
+	// insns := make([]ByteCodeOp, 0, bigcap)
+	// switch stmt := stmt.(type) {
+	// case *sqlparser.Select:
+	// 	visitSelect(*stmt)
+	// case *sqlparser.Insert:
+	// 	_ = stmt
+	// }
 	return nil
 }
 
 func visitSelect(stmt sqlparser.Select) {
-	tableExprs := stmt.From
-	table := tableExprs[0]
-	table2 := TableExprImpl{table}
-	tableName := sqlparser.GetTableName(table2)
-	insns = append(insns, GetTableOp{"dummyTableName"})
+	// tableExprs := stmt.From
+	// table := tableExprs[0]
+	// table2 := TableExprImpl{table}
+	// tableName := sqlparser.GetTableName(table2)
+	// insns = append(insns, GetTableOp{"dummyTableName"})
 }

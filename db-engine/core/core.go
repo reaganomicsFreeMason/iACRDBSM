@@ -1,9 +1,7 @@
 package cores
 
 import (
-	"iACRDBSM/db-engine/codegen"
-
-	"github.com/xwb1989/sqlparser"
+	"iACRDBSM/db-engine/parser"
 )
 
 /*ProcessSQLString :
@@ -22,7 +20,7 @@ func ProcessSQLString(sqlstr string) (string, error) {
 	_ = ast
 
 	//Generate execution plan in bytecode from AST (TODO)
-	_ = codegen.GenByteCode(ast)
+	// _ = codegen.GenByteCode(ast)
 
 	//Exectue bytecode on virtual machine and return results (TODO)
 	// results = execByteCode(bytecode)
@@ -30,10 +28,11 @@ func ProcessSQLString(sqlstr string) (string, error) {
 }
 
 // TODO: Probably move this to a parse file with any other parse stuff we need in the future
-func parseInput(sqlString string) (sqlparser.Statement, error) {
-	stmt, parseErr := sqlparser.Parse(sqlString)
+func parseInput(sqlString string) (*parser.SelectStmt, error) {
+	ast := &parser.SelectStmt{}
+	parseErr := parser.SqlParser.ParseString(sqlString, ast)
 	if parseErr != nil {
 		return nil, parseErr
 	}
-	return stmt, nil
+	return ast, nil
 }

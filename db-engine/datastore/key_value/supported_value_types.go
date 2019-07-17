@@ -32,8 +32,8 @@ var (
 )
 
 type SupportedValueType interface {
-	getName() string // RETURNS THE TYPE
-	getValue() interface{}
+	GetName() string // RETURNS THE TYPE
+	GetValue() interface{}
 }
 
 type SupportedValueTypeImpl struct {
@@ -41,11 +41,11 @@ type SupportedValueTypeImpl struct {
 	Value interface{}
 }
 
-func (i SupportedValueTypeImpl) getName() string {
+func (i SupportedValueTypeImpl) GetName() string {
 	return i.Name
 }
 
-func (i SupportedValueTypeImpl) getValue() interface{} {
+func (i SupportedValueTypeImpl) GetValue() interface{} {
 	return i.Value
 }
 

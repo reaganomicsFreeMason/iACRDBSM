@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
 	kv "iACRDBSM/db-engine/datastore/key_value"
 	vm "iACRDBSM/db-engine/virtual_machine"
@@ -37,6 +38,14 @@ func main() {
 		kv.SupportedValueTypeImpl{"Supported-Value-Type.int", 4},
 		kv.SupportedValueTypeImpl{"Supported-Value-Type.string", "four"},
 	})
-	fmt.Println(vm.R1)
-	fmt.Println(theTable, theDataBase)
+	// fmt.Println(vm.R1)
+	// fmt.Println(theTable, theDataBase)
+	res, _ := vm.ExecByteCode([]codegen.ByteCodeOp{
+		codegen.GetTableOp{"LongLiveSanjitPart2"},
+		codegen.AddRowOp{uint32(0)},
+		codegen.AddRowOp{uint32(1)},
+		codegen.AddColumnOp{"col1"},
+		codegen.AddColumnOp{"col2"},
+	})
+	fmt.Println(res)
 }

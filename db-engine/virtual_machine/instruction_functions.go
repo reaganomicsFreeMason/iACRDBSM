@@ -3,6 +3,7 @@ package virtual_machine
 import ( // fucking shit go is dumb
 
 	"errors"
+	"fmt"
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
 	"strconv"
@@ -79,6 +80,9 @@ func addRow(instruction codegen.AddRowOp) error {
 		Registers[ROWS_REG] = &asInter
 	}
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
+	if listOfPointers == ALL_ROWS {
+		listOfPointers = []*uint32{}
+	}
 	var asInter2 interface{}
 	asInter2 = append(listOfPointers.([]*uint32), &rowInd)
 	Registers[ROWS_REG] = &asInter2
@@ -91,6 +95,7 @@ func clear() error {
 	return nil
 }
 
+// TODO format so it looks better
 func display() string { // return the display string
 	// assume, for now, everything is valid in the registers
 	res := ""
@@ -114,14 +119,29 @@ func display() string { // return the display string
 	res += "\n" // new line as a conclusion
 
 	// TODO: error handle THIS SHIT THIS IS NASTY
-	for _, rowIndPointer := range (*(Registers[ROWS_REG])).([]*uint32) {
-		row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
-		for i, elem := range row {
-			if _, found := goodIndices[uint32(i)]; found {
-				res += " " + elem.(string) + " "
+	if *Registers[ROWS_REG] != ALL_ROWS {
+		for _, rowIndPointer := range (*(Registers[ROWS_REG])).([]*uint32) {
+			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+			for i, elem := range row {
+				if _, found := goodIndices[uint32(i)]; found {
+					asValue := elem.(key_value.SupportedValueType)
+					res += " " + supValToString(asValue) + " "
+				}
 			}
+			res += "\n" // new row
 		}
-		res += "\n" // new row
+	} else {
+		for i := range tableAddress.Rows {
+			rowIndPointer := &i
+			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+			for i, elem := range row {
+				if _, found := goodIndices[uint32(i)]; found {
+					asValue := elem.(key_value.SupportedValueType)
+					res += " " + supValToString(asValue) + " "
+				}
+			}
+			res += "\n" // new row
+		}
 	}
 	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
 }
@@ -174,6 +194,18 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	return key_value.SupportedValueTypeImpl{colType, asInterface}
 }
 
+func supValToString(asValue key_value.SupportedValueType) string {
+	switch asValue.GetName() {
+	case "Supported-Value-Type.int":
+		return strconv.Itoa(asValue.GetValue().(int))
+	case "Supported-Value-Type.float":
+		return fmt.Sprintf("%f", asValue.GetValue().(float32))
+	case "Supported-Value-Type.string":
+		return asValue.GetValue().(string)
+	}
+	return ""
+}
+
 // TODO replace GetRedIndex is now replaced with the valid register named; put
 // them in later.
 // TODO HELLA FUCKING ERROR HANDLING
@@ -194,6 +226,7 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			return "", errors.New("Bad instruction shit face")
 		}
 	}
+	res := display()
 	clear()
-	return display(), nil
+	return res, nil
 }

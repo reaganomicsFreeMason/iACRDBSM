@@ -15,7 +15,7 @@ import (
 type SelectStmt struct {
 	ColNames   []string       `"SELECT" (@Ident",")+`
 	TableNames []string       `"FROM" (@Ident",")+`
-	Conditions []*EqCondition `"WHERE" (@@",")+`
+	Conditions []*EqCondition `("WHERE" (@@",")+)?`
 }
 
 /*EqCondition -

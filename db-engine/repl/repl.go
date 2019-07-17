@@ -18,7 +18,7 @@ func REPL() {
 			// TODO: Probably need better error handling than this..
 			fmt.Println("Error: " + err.Error())
 		} else {
-			fmt.Println("Result: " + result)
+			fmt.Println("Result:\n" + result)
 		}
 	}
 }

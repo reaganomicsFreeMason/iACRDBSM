@@ -3,6 +3,7 @@ package cores
 import (
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/parser"
+	"iACRDBSM/db-engine/virtual_machine"
 )
 
 /*ProcessSQLString :
@@ -26,7 +27,7 @@ func ProcessSQLString(sqlstr string) (string, error) {
 	}
 
 	//Exectue bytecode on virtual machine and return results (TODO)
-	results, execErr := ExecByteCode(insns)
+	results, execErr := virtual_machine.ExecByteCode(insns)
 	if execErr != nil {
 		return "", execErr
 	}

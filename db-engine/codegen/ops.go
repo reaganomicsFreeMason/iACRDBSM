@@ -51,7 +51,7 @@ type AddRowOp struct {
 	idx uint32
 }
 
-type WhereOp struct {
+type FilterOp struct {
 	colname string
 	value   key_value.SupportedValueType
 }

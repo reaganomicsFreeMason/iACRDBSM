@@ -2,7 +2,6 @@ package virtual_machine
 
 import ( // fucking shit go is dumb
 	"errors"
-	"fmt"
 
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
@@ -16,7 +15,7 @@ const (
 	TABLE_REG   = codegen.R5
 	COLUMNS_REG = codegen.R6
 	ROWS_REG    = codegen.R7
-	ALL_ROWS = -1 // signifies that all of the rows are being loaded into the register
+	ALL_ROWS    = -1 // signifies that all of the rows are being loaded into the register
 )
 
 type Register *interface{}
@@ -47,8 +46,8 @@ func getTableInstruction(instruction codegen.GetTableOp) error {
 		return err
 	}
 	Registers[TABLE_REG] = tableAddress
-	Registers[ROWS_REG] = &ALL_ROWS // initialize the rows reg to have a pointer that says all rows 
-	// load the special all value into the ROWS 
+	Registers[ROWS_REG] = &ALL_ROWS // initialize the rows reg to have a pointer that says all rows
+	// load the special all value into the ROWS
 
 	return nil
 }
@@ -80,7 +79,7 @@ func clear() error {
 	Registers[ROWS_REG] = nil
 }
 
-func display() string { // return the display string 
+func display() string { // return the display string
 	// assume, for now, everything is valid in the registers
 	res := ""
 	tableAddress = Registers[TABLE_REG]
@@ -109,34 +108,33 @@ func display() string { // return the display string
 		}
 		res += "\n" // new row
 	}
-	return res[1:len(res) - 1] // ignore the first whitespace character and the last new line char.
+	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
 }
 
 func filter(instruction codegen.FilterOp) error {
-	colName = instruction.colname
+	colName := instruction.colname
 	value := instruction.value
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	tableAddress := Registers[TABLE_REG]
 	newIndices := []uint32{}
-	columnInfoMap = tableAddress.GetColumn(colName)
+	columnInfoMap := tableAddress.GetColumn(colName)
 	goodIndices := columnInfoMap.Values[value] // set of the valid indices
 
 	if *(Registers[ROWS_REG]) == ALL_ROWS {
-		Registers[ROWS_REG] = &newListOfPointers
 		for index, _ := range goodIndices {
 			addRow(codegen.AddRowOp{index})
 		}
-		return nil 
+		return nil
 	}
 
 	newListOfPointers := make([]*uint32, 0, len(listOfPointers))
 	for _, formerAddress := range listOfPointers {
-		if _, found := goodIndices[formerAddress] {
+		if _, found := goodIndices[formerAddress]; found {
 			newListOfPointers = append(newListOfPointers, formerAddress)
 		}
 	}
 	Registers[ROWS_REG] = &newListOfPointers
-	return nil 
+	return nil
 }
 
 // TODO replace GetRedIndex is now replaced with the valid register named; put

@@ -1,7 +1,7 @@
 package codegen
 
 import (
-	"github.com/xwb1989/sqlparser"
+	"iACRDBSM/db-engine/parser"
 )
 
 const bigcap = 500
@@ -14,21 +14,21 @@ and generates bytecode that will be executed by the virtual
 machine to carry out the sql command. The bytecode langauge
 is defined in codegen/ops.go
 */
-func GenByteCode(stmt sqlparser.Statement) []ByteCodeOp {
-	// insns := make([]ByteCodeOp, 0, bigcap)
-	// switch stmt := stmt.(type) {
-	// case *sqlparser.Select:
-	// 	visitSelect(*stmt)
-	// case *sqlparser.Insert:
-	// 	_ = stmt
-	// }
-	return nil
+func GenByteCode(stmt *parser.SelectStmt) ([]ByteCodeOp, error) {
+	insns := make([]ByteCodeOp, 0, bigcap)
+	visitSelect(*stmt)
+	return insns, nil
 }
 
-func visitSelect(stmt sqlparser.Select) {
-	// tableExprs := stmt.From
-	// table := tableExprs[0]
-	// table2 := TableExprImpl{table}
-	// tableName := sqlparser.GetTableName(table2)
-	// insns = append(insns, GetTableOp{"dummyTableName"})
+// Compile a select statement into bytecode
+func visitSelect(stmt parser.SelectStmt) {
+	tableNames := stmt.TableNames
+	// TODO: Handle joins
+	tableName := tableNames[0].TableName
+	insns = append(insns, GetTableOp{tableName})
+	colNames := stmt.ColNames
+	for _, cname := range colNames {
+		// todo: handle * which means we want all columns
+		insns = append(insns, AddColumnOp{cname.ColName})
+	}
 }

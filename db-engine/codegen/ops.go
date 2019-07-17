@@ -34,21 +34,21 @@ Loads a pointer to a DataTable with tablename into R5
 */
 type GetTableOp struct {
 	// Name of table to be retrieved
-	tablename string
+	Tablename string
 }
 
 /*AddColumnOp -
  */
 type AddColumnOp struct {
 	// Column name to add to the query table result
-	colname string
+	Colname string
 }
 
 /*AddRowOp -
  */
 type AddRowOp struct {
 	//Index of row to add to the query table result
-	idx uint32
+	Idx uint32
 }
 
 type FilterOp struct {

@@ -37,6 +37,6 @@ func main() {
 		kv.SupportedValueTypeImpl{"Supported-Value-Type.int", 4},
 		kv.SupportedValueTypeImpl{"Supported-Value-Type.string", "four"},
 	})
-	fmt.Println(vm.R0)
+	fmt.Println(vm.R1)
 	fmt.Println(theTable, theDataBase)
 }

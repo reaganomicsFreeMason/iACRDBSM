@@ -1,7 +1,6 @@
 package virtual_machine
 
 import ( // fucking shit go is dumb
-	"errors"
 
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
@@ -26,84 +25,98 @@ var (
 	DataBase     = key_value.NewDataBase()
 )
 
-func loadInstruction(instruction codegen.LoadValOp) error {
-	idx := instruction.idx
-	value := instruction.value
-	if idx <= 0 {
-		return errors.New("This is register is like your brain: non-existent.")
-	} else if value == nil {
-		return errors.New("Giving a stupid fucking null value, moron. ")
-	}
-	Registers[idx] = &value
-	return nil
-}
+// func loadInstruction(instruction codegen.LoadValOp) error {
+// 	idx := instruction.idx
+// 	value := instruction.value
+// 	if idx <= 0 {
+// 		return errors.New("This is register is like your brain: non-existent.")
+// 	} else if value == nil {
+// 		return errors.New("Giving a stupid fucking null value, moron. ")
+// 	}
+// 	Registers[idx] = &value
+// 	return nil
+// }
 
 // returns whether or not was successful
 func getTableInstruction(instruction codegen.GetTableOp) error {
-	tableName := instruction.Name
+	tableName := instruction.Tablename
 	tableAddress, err := DataBase.GetTable(tableName)
 	if err != nil {
 		return err
 	}
-	Registers[TABLE_REG] = tableAddress
-	Registers[ROWS_REG] = &ALL_ROWS // initialize the rows reg to have a pointer that says all rows
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
+	var asInter2 interface{}
+	asInter2 = ALL_ROWS
+	Registers[ROWS_REG] = &asInter2 // initialize the rows reg to have a pointer that says all rows
 	// load the special all value into the ROWS
 
 	return nil
 }
 
-func addColumn(instruction codegen.AddColumnOpp) error {
-	columnName := instruction.colname
-	if Registers[regInd] == nil {
-		Registers[regInd] = &(make([]*string{}))
+func addColumn(instruction codegen.AddColumnOp) error {
+	columnName := instruction.Colname
+	if Registers[COLUMNS_REG] == nil {
+		var asInter interface{}
+		asInter = []*string{}
+		Registers[COLUMNS_REG] = &asInter
 	}
 	listOfPointers := *(Registers[COLUMNS_REG]) // list of column names
-	tableAddress := Registers[TABLE_REG]
-	Registers[regInd] = &(append(listOfPointers, &columnName))
+	var asInter2 interface{}
+	asInter2 = append(listOfPointers.([]*string), &columnName)
+	Registers[COLUMNS_REG] = &asInter2
 	return nil
 }
 
-func addRow(instruction codegen.AddRowOpp) error {
-	rowInd := instruction.rowInd
-	if Registers[regInd] == nil {
-		Registers[regInd] = &(make([]*uint32{}))
+func addRow(instruction codegen.AddRowOp) error {
+	rowInd := instruction.Idx
+	if Registers[ROWS_REG] == nil {
+		var asInter interface{}
+		asInter = []*uint32{}
+		Registers[ROWS_REG] = &asInter
 	}
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
-	tableAddress := Registers[TABLE_REG]
-	Registers[regInd] = &(append(listOfPointers, &rowInd))
+	var asInter2 interface{}
+	asInter2 = append(listOfPointers.([]*uint32), &rowInd)
+	Registers[ROWS_REG] = &asInter2
 	return nil
 }
 
 func clear() error {
 	Registers[COLUMNS_REG] = nil
 	Registers[ROWS_REG] = nil
+	return nil
 }
 
 func display() string { // return the display string
 	// assume, for now, everything is valid in the registers
 	res := ""
-	tableAddress = Registers[TABLE_REG]
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
 	columnNames := tableAddress.ColumnNames
 
 	setOfQueriedColumns := map[string]bool{}
-	goodIndices := map[string]uint32{}
-	for _, colNamePointer := range *(Registers[COLUMNS_REG]) {
+	goodIndices := map[uint32]bool{}
+	for _, colNamePointer := range (*(Registers[COLUMNS_REG])).([]*string) {
 		setOfQueriedColumns[*colNamePointer] = true
 	}
 
 	// print the columns
 	for i, columnName := range columnNames {
 		if _, found := setOfQueriedColumns[columnName]; found {
-			goodIndices[i] = true
+			goodIndices[uint32(i)] = true
 			res += " " + columnName + " "
 		}
 	}
 	res += "\n" // new line as a conclusion
-	for _, rowIndPointer := range *(Registers[ROWS_REG]) {
-		row := tableAddress.GetRow(*rowIndPointer)
+
+	// TODO: error handle THIS SHIT THIS IS NASTY
+	for _, rowIndPointer := range (*(Registers[ROWS_REG])).([]*uint32) {
+		row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
 		for i, elem := range row {
-			if _, found := goodIndices[i]; found {
-				res += " " + elem + " "
+			if _, found := goodIndices[uint32(i)]; found {
+				res += " " + elem.(string) + " "
 			}
 		}
 		res += "\n" // new row
@@ -112,8 +125,10 @@ func display() string { // return the display string
 }
 
 func filter(instruction codegen.FilterOp) error {
-	colName := instruction.colname
-	value := instruction.value
+	// value is a string; convert it to the supportedValue
+
+	colName := instruction.Colname
+	value := instruction.Value
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	tableAddress := Registers[TABLE_REG]
 	newIndices := []uint32{}

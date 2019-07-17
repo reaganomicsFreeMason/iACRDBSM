@@ -32,13 +32,13 @@ var (
 )
 
 type SupportedValueType interface {
-	getName() string
+	getName() string // RETURNS THE TYPE
 	getValue() interface{}
 }
 
 type SupportedValueTypeImpl struct {
 	Name  string
-	Value interface{}
+	Value string
 }
 
 func (i SupportedValueTypeImpl) getName() string {

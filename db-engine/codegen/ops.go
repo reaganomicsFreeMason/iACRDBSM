@@ -45,3 +45,8 @@ type AddRowOp struct {
 	//Index of row to add to the query table result
 	idx uint32
 }
+
+type WhereOp struct {
+	colname string
+	value   interface{}
+}

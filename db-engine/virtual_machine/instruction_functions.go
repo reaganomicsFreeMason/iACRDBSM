@@ -55,7 +55,7 @@ func addColumn(instruction codegen.AddColumnOpp) error {
 	if Registers[regInd] == nil {
 		Registers[regInd] = &(make([]*string{}))
 	}
-	listOfPointers := *(Registers[COLUMNS_REG]) // list of ColumnInfoMap pointers
+	listOfPointers := *(Registers[COLUMNS_REG]) // list of column names
 	tableAddress := Registers[TABLE_REG]
 	Registers[regInd] = &(append(listOfPointers, &columnName))
 	return nil
@@ -66,7 +66,7 @@ func addRow(instruction codegen.AddRowOpp) error {
 	if Registers[regInd] == nil {
 		Registers[regInd] = &(make([]*uint32{}))
 	}
-	listOfPointers := *(Registers[ROWS_REG]) // list of ColumnInfoMap pointers
+	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	tableAddress := Registers[TABLE_REG]
 	Registers[regInd] = &(append(listOfPointers, &rowInd))
 	return nil
@@ -106,6 +106,17 @@ func display() error {
 		fmt.Println("") // new row
 	}
 	return nil
+}
+
+func where(instruction codegen.WhereOp) {
+	colName = instruction.colname
+	value := instruction.value
+	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
+	tableAddress := Registers[TABLE_REG]
+	newIndices := []uint32{}
+	columnInfoMap = tableAddress.GetColumn(colName)
+	goodIndices := 
+
 }
 
 // TODO replace GetRedIndex is now replaced with the valid register named; put

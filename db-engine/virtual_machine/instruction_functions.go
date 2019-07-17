@@ -95,6 +95,7 @@ func clear() error {
 	return nil
 }
 
+// TODO format so it looks better
 func display() string { // return the display string
 	// assume, for now, everything is valid in the registers
 	res := ""

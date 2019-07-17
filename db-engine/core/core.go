@@ -1,6 +1,7 @@
 package cores
 
 import (
+	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/parser"
 )
 
@@ -17,14 +18,20 @@ func ProcessSQLString(sqlstr string) (string, error) {
 	if parseErr != nil {
 		return "", parseErr
 	}
-	_ = ast
 
 	//Generate execution plan in bytecode from AST (TODO)
-	// _ = codegen.GenByteCode(ast)
+	insns, codeGenErr := codegen.GenByteCode(ast)
+	if codeGenErr != nil {
+		return "", codeGenErr
+	}
 
 	//Exectue bytecode on virtual machine and return results (TODO)
-	// results = execByteCode(bytecode)
-	return "dummy", nil
+	results, execErr := execByteCode(insns)
+	if execErr != nil {
+		return "", execErr
+	}
+
+	return results, nil
 }
 
 // TODO: Probably move this to a parse file with any other parse stuff we need in the future

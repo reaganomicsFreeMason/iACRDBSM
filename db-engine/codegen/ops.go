@@ -28,19 +28,20 @@ type ByteCodeOp interface {
 Loads a pointer to a DataTable with tablename into R5
 */
 type GetTableOp struct {
+	// Name of table to be retrieved
 	tablename string
 }
 
 /*AddColumnOp -
  */
 type AddColumnOp struct {
-	// Assumes that pointer to table is in r5
+	// Column name to add to the query table result
 	colname string
 }
 
 /*AddRowOp -
  */
 type AddRowOp struct {
-	// Assumes that pointer to table is in r5
+	//Index of row to add to the query table result
 	idx uint32
 }

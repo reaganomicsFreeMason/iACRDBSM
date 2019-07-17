@@ -8,27 +8,27 @@ import (
 	"github.com/alecthomas/participle"
 )
 
+//////////////////////////////BEGINNING OF GRAMMAR/////////////////////////////
+
 /*SelectStmt -
  */
 type SelectStmt struct {
-	ColNames   []*ColName   `"SELECT" (@@)+ "FROM"`
-	TableNames []*TableName `(@@)+`
-	// TODO: Handle WHERE clause
+	ColNames   []*string      `"SELECT" (@Ident",")+`
+	TableNames []*string      `"FROM" (@Ident",")+`
+	Conditions []*EqCondition `("WHERE" (@@)+)?`
 }
 
-/*ColName -
+/*InCondition -
  */
-type ColName struct {
-	ColName string `@Ident","`
+type EqCondition struct {
+	ColName string `@Ident "="`
+	ValName string `@Ident`
 }
 
-/*TableName -
- */
-type TableName struct {
-	TableName string `@Ident","`
-}
+//////////////////////////////END OF GRAMMAR/////////////////////////////
 
-var SqlParser *participle.Parser
+//SQLParser -
+var SQLParser *participle.Parser
 
 /*InitParser -
 Creates a parser with the simple SQL grammar defined above
@@ -42,6 +42,6 @@ func InitParser() error {
 		return parseErr
 	}
 
-	SqlParser = parser
+	SQLParser = parser
 	return nil
 }

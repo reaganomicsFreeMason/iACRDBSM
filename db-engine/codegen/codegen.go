@@ -24,11 +24,15 @@ func GenByteCode(stmt *parser.SelectStmt) ([]ByteCodeOp, error) {
 func visitSelect(stmt parser.SelectStmt) {
 	tableNames := stmt.TableNames
 	// TODO: Handle joins
-	tableName := tableNames[0].TableName
-	insns = append(insns, GetTableOp{tableName})
-	colNames := stmt.ColNames
-	for _, cname := range colNames {
-		// todo: handle * which means we want all columns
-		insns = append(insns, AddColumnOp{cname.ColName})
+	insns = append(insns, GetTableOp{*tableNames[0]})
+	// Generate insns to add columns we want
+	for _, colName := range stmt.ColNames {
+		insns = append(insns, AddColumnOp{*colName})
+	}
+	// Generate insns for conditions in WHERE clause
+	for _, cond := range stmt.Conditions {
+		colName := cond.ColName
+		valName := cond.ValName
+		insns = append(insns, FilterOp{colName, valName})
 	}
 }

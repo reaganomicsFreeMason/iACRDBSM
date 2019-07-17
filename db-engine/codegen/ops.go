@@ -1,9 +1,5 @@
 package codegen
 
-import (
-	"iACRDBSM/db-engine/datastore/key_value"
-)
-
 /* Defines a small bytecode language whose execution platform
 is the virtual machine. The opcodes operate on registers.
 */
@@ -51,7 +47,9 @@ type AddRowOp struct {
 	idx uint32
 }
 
+/*FilterOp -
+ */
 type FilterOp struct {
-	colname string
-	value   key_value.SupportedValueType
+	colName string
+	valName string
 }

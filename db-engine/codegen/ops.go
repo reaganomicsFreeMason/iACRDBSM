@@ -44,3 +44,8 @@ type AddRowOp struct {
 	// Assumes that pointer to table is in r5
 	idx uint32
 }
+
+type WhereOp struct {
+	colname string
+	value   interface{}
+}

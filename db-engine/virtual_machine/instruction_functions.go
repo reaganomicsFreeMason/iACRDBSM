@@ -109,10 +109,10 @@ func display() string { // return the display string
 		}
 		res += "\n" // new row
 	}
-	return res[1:-1] // ignore the first whitespace character and the last new line char.
+	return res[1:len(res) - 1] // ignore the first whitespace character and the last new line char.
 }
 
-func where(instruction codegen.WhereOp) error {
+func filter(instruction codegen.FilterOp) error {
 	colName = instruction.colname
 	value := instruction.value
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
@@ -120,6 +120,15 @@ func where(instruction codegen.WhereOp) error {
 	newIndices := []uint32{}
 	columnInfoMap = tableAddress.GetColumn(colName)
 	goodIndices := columnInfoMap.Values[value] // set of the valid indices
+
+	if *(Registers[ROWS_REG]) == ALL_ROWS {
+		Registers[ROWS_REG] = &newListOfPointers
+		for index, _ := range goodIndices {
+			addRow(codegen.AddRowOp{index})
+		}
+		return nil 
+	}
+
 	newListOfPointers := make([]*uint32, 0, len(listOfPointers))
 	for _, formerAddress := range listOfPointers {
 		if _, found := goodIndices[formerAddress] {

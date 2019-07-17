@@ -22,7 +22,7 @@ const (
 type Register *interface{}
 
 var (
-	numRegisters = 6
+	numRegisters = 20
 	Registers    = make([]Register, numRegisters) // each one is an empty register for now
 	DataBase     = key_value.NewDataBase()
 )

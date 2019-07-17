@@ -38,7 +38,7 @@ type SupportedValueType interface {
 
 type SupportedValueTypeImpl struct {
 	Name  string
-	Value string
+	Value interface{}
 }
 
 func (i SupportedValueTypeImpl) getName() string {

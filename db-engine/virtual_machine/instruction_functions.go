@@ -4,6 +4,7 @@ import ( // fucking shit go is dumb
 
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
+	"strconv"
 )
 
 const (
@@ -127,29 +128,49 @@ func display() string { // return the display string
 func filter(instruction codegen.FilterOp) error {
 	// value is a string; convert it to the supportedValue
 
-	colName := instruction.Colname
-	value := instruction.Value
+	colName := instruction.ColName
+	valueName := instruction.ValName
+	val := makeSupportedVal(colName, valueName)
+
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
-	tableAddress := Registers[TABLE_REG]
-	newIndices := []uint32{}
-	columnInfoMap := tableAddress.GetColumn(colName)
-	goodIndices := columnInfoMap.Values[value] // set of the valid indices
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	columnInfoMap, _ := tableAddress.GetColumn(colName)
+	goodIndices := columnInfoMap.Values[val] // set of the valid indices
 
 	if *(Registers[ROWS_REG]) == ALL_ROWS {
-		for index, _ := range goodIndices {
-			addRow(codegen.AddRowOp{index})
+		for index := range goodIndices {
+			addRow(codegen.AddRowOp{uint32(index)})
 		}
 		return nil
 	}
 
-	newListOfPointers := make([]*uint32, 0, len(listOfPointers))
-	for _, formerAddress := range listOfPointers {
-		if _, found := goodIndices[*formerAddress]; found {
+	newListOfPointers := make([]*uint32, 0)
+	for _, formerAddress := range listOfPointers.([]*uint32) {
+		if _, found := goodIndices[uint64(*formerAddress)]; found {
 			newListOfPointers = append(newListOfPointers, formerAddress)
 		}
 	}
-	Registers[ROWS_REG] = &newListOfPointers
+	var asInter interface{}
+	asInter = newListOfPointers
+	Registers[ROWS_REG] = &asInter
 	return nil
+}
+
+func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	colType := tableAddress.ColumnsMap[colName].Type
+	var asInterface interface{}
+	switch colType {
+	case "Supported-Value-Type.int":
+		asInterface, _ = strconv.Atoi(valName)
+	case "Supported-Value-Type.float":
+		asInterface, _ = strconv.ParseFloat(valName, 32)
+	case "Supported-Value-Type.string":
+		asInterface = valName
+	}
+	return key_value.SupportedValueTypeImpl{colType, asInterface}
 }
 
 // TODO replace GetRedIndex is now replaced with the valid register named; put

@@ -50,6 +50,6 @@ type AddRowOp struct {
 /*FilterOp -
  */
 type FilterOp struct {
-	colName string
-	valName string
+	ColName string
+	ValName string
 }

@@ -13,12 +13,12 @@ import (
 /*SelectStmt -
  */
 type SelectStmt struct {
-	ColNames   []*string      `"SELECT" (@Ident",")+`
-	TableNames []*string      `"FROM" (@Ident",")+`
-	Conditions []*EqCondition `("WHERE" (@@)+)?`
+	ColNames   []string       `"SELECT" (@Ident",")+`
+	TableNames []string       `"FROM" (@Ident",")+`
+	Conditions []*EqCondition `"WHERE" (@@",")+`
 }
 
-/*InCondition -
+/*EqCondition -
  */
 type EqCondition struct {
 	ColName string `@Ident "="`

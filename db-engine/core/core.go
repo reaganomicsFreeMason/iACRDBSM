@@ -26,7 +26,7 @@ func ProcessSQLString(sqlstr string) (string, error) {
 	}
 
 	//Exectue bytecode on virtual machine and return results (TODO)
-	results, execErr := execByteCode(insns)
+	results, execErr := ExecByteCode(insns)
 	if execErr != nil {
 		return "", execErr
 	}

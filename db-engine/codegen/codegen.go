@@ -24,10 +24,10 @@ func GenByteCode(stmt *parser.SelectStmt) ([]ByteCodeOp, error) {
 func visitSelect(stmt parser.SelectStmt) {
 	tableNames := stmt.TableNames
 	// TODO: Handle joins
-	insns = append(insns, GetTableOp{*tableNames[0]})
+	insns = append(insns, GetTableOp{tableNames[0]})
 	// Generate insns to add columns we want
 	for _, colName := range stmt.ColNames {
-		insns = append(insns, AddColumnOp{*colName})
+		insns = append(insns, AddColumnOp{colName})
 	}
 	// Generate insns for conditions in WHERE clause
 	for _, cond := range stmt.Conditions {

@@ -259,7 +259,7 @@ func (dt *DataTable) GetRow(rowIndex uint64) (Row, error) {
 			res = append(res, dt.Rows[rowIndex][i])
 		}
 	}
-	return dt.Rows[rowIndex], nil
+	return res, nil
 }
 
 // TODO Delete column, test, add row, delete row

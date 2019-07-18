@@ -101,10 +101,24 @@ func (o DeleteTableOp) GetOpName() string {
 // UPDATE: look at rows and cols in the regs currently
 // replace all the cols with the values given as inputs
 type UpdateTableOp struct {
-	ColNames []string
-	NewVals  []string // new vals given as strings
+	ColName string
+	NewVal  string // new vals given as strings
 }
 
 func (o UpdateTableOp) GetOpName() string {
 	return "UpdateTableOp"
 }
+
+type DeleteRowsOp struct{}
+
+func (o DeleteRowsOp) GetOpName() string {
+	return "DeleteRowsOp"
+}
+
+type DeleteColsOp struct{}
+
+func (o DeleteColsOp) GetOpName() string {
+	return "DeleteColsOp"
+}
+
+// ALTER TABLE TO DO

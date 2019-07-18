@@ -119,7 +119,7 @@ func display() string { // return the display string
 	columnNames := tableAddress.ColumnNames
 	columnHeader := []string{}
 	data := [][]string{}
-	mytable := tablewriter.NewWriter(os.Stdout)
+	retTable := tablewriter.NewWriter(os.Stdout)
 
 	setOfQueriedColumns := map[string]bool{}
 	goodIndices := map[uint32]bool{}
@@ -168,17 +168,16 @@ func display() string { // return the display string
 			res += "\n" // new row
 		}
 	}
-	if len(data) > 0 {
-		mytable.SetHeader(columnHeader)
-		mytable.AppendBulk(data)
-		mytable.Render()
-	} else {
-		if len(columnHeader) > 0 {
+	if len(columnHeader) > 0 {
+		if len(data) > 0 {
+			retTable.SetHeader(columnHeader)
+		} else {
 			data = append(data, columnHeader)
-			mytable.AppendBulk(data)
-			mytable.Render()
 		}
+		retTable.AppendBulk(data)
+		retTable.Render()
 	}
+
 	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
 }
 

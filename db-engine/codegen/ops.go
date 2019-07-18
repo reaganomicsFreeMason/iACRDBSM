@@ -79,3 +79,12 @@ type InsertOp struct {
 func (o InsertOp) GetOpName() string {
 	return "InsertOp"
 }
+
+type MakeTableOp struct {
+	ColNames []string
+	ColTypes []string // corresponding values to the columns as strings
+}
+
+func (o MakeTableOp) GetOpName() string {
+	return "MakeTableOp"
+}

@@ -211,6 +211,20 @@ func insert(instruction codegen.InsertOp) error {
 	return tableAddress.PutRow(rowToInsert) // should be nil?
 }
 
+func makeTable(instruction codegen.MakeTableOp) error {
+	colNames := instruction.ColNames
+	colTypes := instruction.ColTypes
+	tableName := instruction.TableName
+	tableTypes := make([]string, len(colNames)) // just do it pre made
+	for i := 0; i < len(colNames); i++ {
+		colType := colTypes[i]
+		tableType := normalToTableType(colType)
+		tableTypes[i] = tableType
+		// do some error handling here later
+	}
+	return DataBase.NewTable(tableName, colNames, colTypes)
+}
+
 func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
@@ -268,4 +282,16 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 	res := display()
 	clear()
 	return res, nil
+}
+
+func normalToTableType(colType string) string {
+	switch colType {
+	case "int":
+		return "Supported-Value-Type.int"
+	case "float":
+		return "Supported-Value-Type.float"
+	case "string":
+		return "Supported-Value-Type.string"
+	}
+	return ""
 }

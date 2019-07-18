@@ -89,3 +89,11 @@ type MakeTableOp struct {
 func (o MakeTableOp) GetOpName() string {
 	return "MakeTableOp"
 }
+
+type DeleteTableOp struct {
+	TableName string
+}
+
+func (o DeleteTableOp) GetOpName() string {
+	return "DeleteTableOp"
+}

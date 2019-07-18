@@ -225,6 +225,42 @@ func makeTable(instruction codegen.MakeTableOp) error {
 	return DataBase.NewTable(tableName, colNames, colTypes)
 }
 
+// Straightforward instruction
+
+func deleteTable(instruction codegen.DeleteTableOp) error {
+	tableName := instruction.TableName
+	return DataBase.DeleteTable(tableName)
+}
+
+// DELETE is going to look at registers and delete anything in the rows register
+
+func deleteRows() error {
+	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	for _, indAddress := range listOfPointers.([]*uint32) {
+		index := *indAddress
+		tableAddress.DeleteRow(uint64(index))
+		// error handling TODO
+	}
+	return nil
+}
+
+// DELETE is going to look at registers and delete anything in the cols register
+
+func deleteCols() error {
+	listOfPointers := *(Registers[COLUMNS_REG]) // list of pointers to indices
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	for _, colNameAddress := range listOfPointers.([]*string) {
+		colName := *colNameAddress
+		tableAddress.DeleteColumn(colName)
+		// error handling TODO
+	}
+	return nil
+
+}
+
 func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table

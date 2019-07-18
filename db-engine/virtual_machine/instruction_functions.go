@@ -335,6 +335,14 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			addRow(instruction.(codegen.AddRowOp))
 		case "FilterOp":
 			filter(instruction.(codegen.FilterOp))
+		case "InsertOp":
+			insert(instruction.(codegen.InsertOp))
+		case "MakeTableOp":
+			makeTable(instruction.(codegen.MakeTableOp))
+		case "DeleteTable":
+			deleteTable(instruction.(codegen.DeleteTableOp))
+		case "UpdateTableOp":
+			updateTable(instruction.(codegen.UpdateTableOp))
 		default:
 			return "", errors.New("Bad instruction shit face")
 		}

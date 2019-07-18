@@ -45,21 +45,34 @@ func TestNoBad(t *testing.T) {
 	})
 	// fmt.Println(R1)
 	// fmt.Println(theTable, theDataBase)
-	res, err := ExecByteCode([]codegen.ByteCodeOp{
-		codegen.GetTableOp{"LongLiveSanjitPart2"},
-		codegen.AddRowOp{uint32(0)},
-		codegen.AddRowOp{uint32(1)},
-		codegen.AddColumnOp{"col1"},
-		codegen.AddColumnOp{"col2"},
-		codegen.FilterOp{"col2", "two"},
-		codegen.UpdateTableOp{[]string{"col2"}, []string{"three"}},
-		codegen.AddRowOp{uint32(0)},
-		codegen.AddRowOp{uint32(1)},
-		codegen.AddColumnOp{"col1"},
-		codegen.AddColumnOp{"col2"},
+	// res, err := ExecByteCode([]codegen.ByteCodeOp{
+	// 	codegen.GetTableOp{"LongLiveSanjitPart2"},
+	// 	codegen.AddRowOp{uint32(0)},
+	// 	codegen.AddRowOp{uint32(1)},
+	// 	codegen.AddColumnOp{"col1"},
+	// 	codegen.AddColumnOp{"col2"},
+	// 	codegen.FilterOp{"col2", "two"},
+	// 	codegen.UpdateTableOp{"col2", "three"},
+	// 	codegen.AddRowOp{uint32(0)},
+	// 	codegen.AddRowOp{uint32(1)},
+	// 	codegen.AddColumnOp{"col1"},
+	// 	codegen.AddColumnOp{"col2"},
 
-		// fix repeated thing
+	// 	// fix repeated thing
+	// })
+	res, _ := ExecByteCode([]codegen.ByteCodeOp{
+		codegen.MakeTableOp{
+			"Potato",
+			[]string{"type"},
+			[]string{"string"},
+		},
+		codegen.GetTableOp{"Potato"},
+		codegen.AddColumnOp{"type"},
+		codegen.InsertOp{
+			[]string{"type"},
+			[]string{"fattening"},
+		},
+		codegen.AddRowOp{uint32(0)},
 	})
-	t.Log("error: \n", err)
 	t.Log("\n" + res)
 }

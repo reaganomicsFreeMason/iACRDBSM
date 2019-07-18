@@ -29,13 +29,13 @@ var (
 	numRegisters = 20
 	Registers    = make([]Register, numRegisters) // each one is an empty register for now
 	DataBase     = key_value.NewDataBase()
-	// _            = DataBase.NewTable(
-	// 	"TestTable",
-	// 	[]string{"a", "b", "c"},
-	// 	[]string{"Supported-Value-Type.int",
-	// 		"Supported-Value-Type.float",
-	// 		"Supported-Value-Type.string"},
-	// )
+	_            = DataBase.NewTable(
+		"TestTable",
+		[]string{"a", "b", "c"},
+		[]string{"Supported-Value-Type.int",
+			"Supported-Value-Type.float",
+			"Supported-Value-Type.string"},
+	)
 )
 
 // func loadInstruction(instruction codegen.LoadValOp) error {
@@ -72,34 +72,29 @@ func addColumn(instruction codegen.AddColumnOp) error {
 	columnName := instruction.Colname
 	if Registers[COLUMNS_REG] == nil {
 		var asInter interface{}
-		asInter = map[string]bool{} // change these to sets
+		asInter = []*string{}
 		Registers[COLUMNS_REG] = &asInter
 	}
-	setOfPointers := (*(Registers[COLUMNS_REG])).(map[string]bool) // list of column names
-	setOfPointers[columnName] = true
+	listOfPointers := *(Registers[COLUMNS_REG]) // list of column names
 	var asInter2 interface{}
-	asInter2 = setOfPointers
+	asInter2 = append(listOfPointers.([]*string), &columnName)
 	Registers[COLUMNS_REG] = &asInter2
 	return nil
 }
 
-// TODO: fix bug
 func addRow(instruction codegen.AddRowOp) error {
 	rowInd := instruction.Idx
 	if Registers[ROWS_REG] == nil {
 		var asInter interface{}
-		asInter = map[uint32]bool{}
+		asInter = []*uint32{}
 		Registers[ROWS_REG] = &asInter
 	}
-	setOfPointers := *(Registers[ROWS_REG]) // set of pointers to indices
-	if setOfPointers == ALL_ROWS {
-		setOfPointers = map[uint32]bool{}
+	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
+	if listOfPointers == ALL_ROWS {
+		listOfPointers = []*uint32{}
 	}
-	newSet := (setOfPointers).(map[uint32]bool) // list of column names
-	newSet[rowInd] = true
 	var asInter2 interface{}
-	asInter2 = newSet
-	// setOfPointers[&rowInd] = true
+	asInter2 = append(listOfPointers.([]*uint32), &rowInd)
 	Registers[ROWS_REG] = &asInter2
 	return nil
 }
@@ -119,12 +114,12 @@ func display() string { // return the display string
 	columnNames := tableAddress.ColumnNames
 	columnHeader := []string{}
 	data := [][]string{}
-	retTable := tablewriter.NewWriter(os.Stdout)
+	mytable := tablewriter.NewWriter(os.Stdout)
 
 	setOfQueriedColumns := map[string]bool{}
 	goodIndices := map[uint32]bool{}
-	for colNamePointer := range (*(Registers[COLUMNS_REG])).(map[string]bool) {
-		setOfQueriedColumns[colNamePointer] = true // CHANGE VAR NA<ME
+	for _, colNamePointer := range (*(Registers[COLUMNS_REG])).([]*string) {
+		setOfQueriedColumns[*colNamePointer] = true
 	}
 
 	// print the columns
@@ -139,43 +134,40 @@ func display() string { // return the display string
 
 	// TODO: error handle THIS SHIT THIS IS NASTY
 	if *Registers[ROWS_REG] != ALL_ROWS {
-		for rowIndPointer := range (*(Registers[ROWS_REG])).(map[uint32]bool) {
-			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
-			currentRow := []string{}
+		for _, rowIndPointer := range (*(Registers[ROWS_REG])).([]*uint32) {
+			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
 					res += " " + supValToString(asValue) + " "
-					currentRow = append(currentRow, supValToString(asValue))
 				}
 			}
-			data = append(data, currentRow)
 			res += "\n" // new row
 		}
 	} else {
 		for i := range tableAddress.Rows {
-			rowIndPointer := i
-			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
-			currentRow := []string{}
+			rowIndPointer := &i
+			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
 					res += " " + supValToString(asValue) + " "
-					currentRow = append(currentRow, supValToString(asValue))
 				}
 			}
-			data = append(data, currentRow)
 			res += "\n" // new row
 		}
 	}
-	if len(columnHeader) > 0 {
-		if len(data) > 0 {
-			retTable.SetHeader(columnHeader)
-		} else {
-			data = append(data, columnHeader)
+	if len(data) > 0 {
+		mytable.SetHeader(columnHeader)
+		mytable.AppendBulk(data)
+		mytable.Render()
+	} else {
+		if len(columnHeader) > 0 {
+			content := [][]string{{}}
+			content[0] = append(content[0], columnHeader...)
+			mytable.AppendBulk(content)
+			mytable.Render()
 		}
-		retTable.AppendBulk(data)
-		retTable.Render()
 	}
 
 	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
@@ -188,7 +180,7 @@ func filter(instruction codegen.FilterOp) error {
 	valueName := instruction.ValName
 	val := makeSupportedVal(colName, valueName)
 
-	setOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
+	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
 	columnInfoMap, _ := tableAddress.GetColumn(colName)
@@ -201,14 +193,14 @@ func filter(instruction codegen.FilterOp) error {
 		return nil
 	}
 
-	newSetOfPointers := map[uint32]bool{}
-	for formerAddress := range setOfPointers.(map[uint32]bool) {
-		if _, found := goodIndices[uint64(formerAddress)]; found {
-			newSetOfPointers[formerAddress] = true
+	newListOfPointers := make([]*uint32, 0)
+	for _, formerAddress := range listOfPointers.([]*uint32) {
+		if _, found := goodIndices[uint64(*formerAddress)]; found {
+			newListOfPointers = append(newListOfPointers, formerAddress)
 		}
 	}
 	var asInter interface{}
-	asInter = newSetOfPointers
+	asInter = newListOfPointers
 	Registers[ROWS_REG] = &asInter
 	return nil
 }
@@ -263,11 +255,11 @@ func deleteTable(instruction codegen.DeleteTableOp) error {
 // DELETE is going to look at registers and delete anything in the rows register
 
 func deleteRows() error {
-	setOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
+	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	for indAddress := range setOfPointers.(map[uint32]bool) {
-		index := indAddress
+	for _, indAddress := range listOfPointers.([]*uint32) {
+		index := *indAddress
 		tableAddress.DeleteRow(uint64(index))
 		// error handling TODO
 	}
@@ -277,11 +269,11 @@ func deleteRows() error {
 // DELETE is going to look at registers and delete anything in the cols register
 
 func deleteCols() error {
-	setOfPointers := *(Registers[COLUMNS_REG]) // list of pointers to indices
+	listOfPointers := *(Registers[COLUMNS_REG]) // list of pointers to indices
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	for colNameAddress := range setOfPointers.(map[string]bool) {
-		colName := colNameAddress
+	for _, colNameAddress := range listOfPointers.([]*string) {
+		colName := *colNameAddress
 		tableAddress.DeleteColumn(colName)
 		// error handling TODO
 	}
@@ -296,9 +288,9 @@ func updateTable(instruction codegen.UpdateTableOp) error {
 	newVals := instruction.NewVals
 	// UpdateRow(rowIndex uint64, colName string, newValue SupportedValueType)
 
-	setOfPointers := *(Registers[ROWS_REG])
-	for indAddress := range setOfPointers.(map[uint32]bool) {
-		index := indAddress
+	listOfPointers := *(Registers[ROWS_REG])
+	for _, indAddress := range listOfPointers.([]*uint32) {
+		index := *indAddress
 		for i := 0; i < len(colNamesToChange); i++ {
 			colName := colNamesToChange[i]
 			approproVal := makeSupportedVal(colName, newVals[i])
@@ -342,10 +334,10 @@ func supValToString(asValue key_value.SupportedValueType) string {
 
 func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 	// FOR TESTING RID OF THIS LATER!!!!!~
-	// tableAddress, _ := DataBase.GetTable("TestTable")
-	// var asInter interface{}
-	// asInter = *tableAddress
-	// Registers[TABLE_REG] = &asInter
+	tableAddress, _ := DataBase.GetTable("TestTable")
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
 	// END stuff to rid later
 	for _, instruction := range instructions {
 		instName := instruction.GetOpName()
@@ -358,14 +350,6 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			addRow(instruction.(codegen.AddRowOp))
 		case "FilterOp":
 			filter(instruction.(codegen.FilterOp))
-		case "InsertOp":
-			insert(instruction.(codegen.InsertOp))
-		case "MakeTableOp":
-			makeTable(instruction.(codegen.MakeTableOp))
-		case "DeleteTable":
-			deleteTable(instruction.(codegen.DeleteTableOp))
-		case "UpdateTableOp":
-			updateTable(instruction.(codegen.UpdateTableOp))
 		default:
 			return "", errors.New("Bad instruction shit face")
 		}
@@ -386,5 +370,3 @@ func normalToTableType(colType string) string {
 	}
 	return ""
 }
-
-// CHANGE SETS TO BE VALUES RATHER THAN REFERENCES

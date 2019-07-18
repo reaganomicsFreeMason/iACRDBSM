@@ -15,7 +15,7 @@ machine to carry out the sql command. The bytecode langauge
 is defined in codegen/ops.go
 */
 func GenByteCode(stmt *parser.SelectStmt) ([]ByteCodeOp, error) {
-	insns := make([]ByteCodeOp, 0, bigcap)
+	insns = make([]ByteCodeOp, 0, bigcap)
 	visitSelect(*stmt)
 	return insns, nil
 }

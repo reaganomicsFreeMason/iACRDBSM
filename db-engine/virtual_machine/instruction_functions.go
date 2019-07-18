@@ -26,6 +26,13 @@ var (
 	numRegisters = 20
 	Registers    = make([]Register, numRegisters) // each one is an empty register for now
 	DataBase     = key_value.NewDataBase()
+	_            = DataBase.NewTable(
+		"TestTable",
+		[]string{"a", "b", "c"},
+		[]string{"Supported-Value-Type.int",
+			"Supported-Value-Type.float",
+			"Supported-Value-Type.string"},
+	)
 )
 
 // func loadInstruction(instruction codegen.LoadValOp) error {
@@ -211,6 +218,12 @@ func supValToString(asValue key_value.SupportedValueType) string {
 // TODO HELLA FUCKING ERROR HANDLING
 
 func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
+	// FOR TESTING RID OF THIS LATER!!!!!~
+	tableAddress, _ := DataBase.GetTable("TestTable")
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
+	// END stuff to rid later
 	for _, instruction := range instructions {
 		instName := instruction.GetOpName()
 		switch instName {

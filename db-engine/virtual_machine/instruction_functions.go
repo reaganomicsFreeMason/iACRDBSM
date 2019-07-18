@@ -370,13 +370,15 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			deleteRows()
 		case "DeleteColsOp":
 			deleteCols()
+		case "DisplayOp":
+			res := display()
+			clear()
+			return res, nil
 		default:
 			return "", errors.New("Bad instruction shit face")
 		}
 	}
-	res := display()
-	clear()
-	return res, nil
+	return "", nil
 }
 
 func normalToTableType(colType string) string {

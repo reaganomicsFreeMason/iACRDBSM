@@ -185,6 +185,32 @@ func filter(instruction codegen.FilterOp) error {
 	return nil
 }
 
+func insert(instruction codegen.InsertOp) error {
+	// first, make a map from the colNames to the values
+	colNameToValue := map[string]string{}
+	colNames, valNames := instruction.ColNames, instruction.ValNames
+	numNamesGiven := len(colNames)
+	for i := 0; i < numNamesGiven; i++ {
+		colName := colNames[i]
+		valName := valNames[i]
+		colNameToValue[colName] = valName
+	}
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table // need this soon
+	tableColNamesOfficial := tableAddress.ColumnNames
+	rowToInsert := make(key_value.Row, len(tableColNamesOfficial)) // just give everything a null value for now
+	for i, tableColName := range tableColNamesOfficial {
+		if tableColName == "" {
+			continue
+		} else if val, found := colNameToValue[tableColName]; !found {
+			continue
+		} else {
+			rowToInsert[i] = makeSupportedVal(tableColName, val)
+		}
+	}
+	return tableAddress.PutRow(rowToInsert) // should be nil?
+}
+
 func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table

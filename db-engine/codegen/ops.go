@@ -70,3 +70,12 @@ type FilterOp struct {
 func (o FilterOp) GetOpName() string {
 	return "FilterOp"
 }
+
+type InsertOp struct {
+	ColNames []string
+	ValNames []string // corresponding values to the columns as strings
+}
+
+func (o InsertOp) GetOpName() string {
+	return "InsertOp"
+}

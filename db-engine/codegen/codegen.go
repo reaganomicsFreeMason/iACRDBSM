@@ -23,7 +23,7 @@ func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
 	} else if stmt.Insert != nil {
 		visitInsert(*stmt.Insert)
 	} else if stmt.Update != nil {
-		// visitUpdate(*stmt.Update)
+		visitUpdate(*stmt.Update)
 	}
 	return insns, nil
 }

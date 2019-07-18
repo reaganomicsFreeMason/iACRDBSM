@@ -261,6 +261,25 @@ func deleteCols() error {
 
 }
 
+func updateTable(instruction codegen.UpdateTableOp) error {
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	colNamesToChange := instruction.ColNames
+	newVals := instruction.NewVals
+	// UpdateRow(rowIndex uint64, colName string, newValue SupportedValueType)
+
+	listOfPointers := *(Registers[ROWS_REG])
+	for _, indAddress := range listOfPointers.([]*uint32) {
+		index := *indAddress
+		for i := 0; i < len(colNamesToChange); i++ {
+			colName := colNamesToChange[i]
+			approproVal := makeSupportedVal(colName, newVals[i])
+			tableAddress.UpdateRow(uint64(index), colName, approproVal)
+		}
+	}
+	return nil
+}
+
 func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table

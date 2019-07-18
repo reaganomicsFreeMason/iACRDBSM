@@ -97,3 +97,14 @@ type DeleteTableOp struct {
 func (o DeleteTableOp) GetOpName() string {
 	return "DeleteTableOp"
 }
+
+// UPDATE: look at rows and cols in the regs currently
+// replace all the cols with the values given as inputs
+type UpdateTableOp struct {
+	ColNames []string
+	NewVals  []string // new vals given as strings
+}
+
+func (o UpdateTableOp) GetOpName() string {
+	return "UpdateTableOp"
+}

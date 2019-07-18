@@ -121,4 +121,10 @@ func (o DeleteColsOp) GetOpName() string {
 	return "DeleteColsOp"
 }
 
+type DisplayOp struct{}
+
+func (o DisplayOp) GetOpName() string {
+	return "DisplayOp"
+}
+
 // ALTER TABLE TO DO

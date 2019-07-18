@@ -23,7 +23,7 @@ func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
 	} else if stmt.Insert != nil {
 		visitInsert(*stmt.Insert)
 	} else if stmt.Update != nil {
-		visitUpdate(*stmt.Update)
+		// visitUpdate(*stmt.Update)
 	}
 	return insns, nil
 }
@@ -43,6 +43,8 @@ func visitSelect(stmt parser.SelectStmt) {
 		valName := cond.ValName
 		insns = append(insns, FilterOp{colName, valName})
 	}
+
+	insns = append(insns, DisplayOp{})
 }
 
 func visitCreateTable(stmt parser.CreateTableStmt) {
@@ -66,8 +68,6 @@ func visitInsert(stmt parser.InsertStmt) {
 func visitUpdate(stmt parser.UpdateStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
-	colNames := make([]string, 0, bigcap)
-	colVals := make([]string, 0, bigcap)
 
 	// Want to filter out rows we dont first
 	for _, cond := range stmt.Conditions {
@@ -76,10 +76,10 @@ func visitUpdate(stmt parser.UpdateStmt) {
 		insns = append(insns, FilterOp{colName, valName})
 	}
 
-	// Then generate update table instruction
+	// Then generate update table instructions
 	for _, colSetVal := range stmt.ColSetVals {
-		colNames = append(colNames, colSetVal.ColName)
-		colVals = append(colVals, colSetVal.ColVal)
+		colName := colSetVal.ColName
+		colVal := colSetVal.ColVal
+		insns = append(insns, UpdateTableOp{colName, colVal})
 	}
-	insns = append(insns, UpdateTableOp{colNames, colVals})
 }

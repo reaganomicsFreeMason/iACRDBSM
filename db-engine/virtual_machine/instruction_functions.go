@@ -6,7 +6,10 @@ import ( // fucking shit go is dumb
 	"fmt"
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
+	"os"
 	"strconv"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 const (
@@ -109,6 +112,9 @@ func display() string { // return the display string
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
 	columnNames := tableAddress.ColumnNames
+	columnHeader := []string{}
+	data := [][]string{}
+	mytable := tablewriter.NewWriter(os.Stdout)
 
 	setOfQueriedColumns := map[string]bool{}
 	goodIndices := map[uint32]bool{}
@@ -121,6 +127,7 @@ func display() string { // return the display string
 		if _, found := setOfQueriedColumns[columnName]; found {
 			goodIndices[uint32(i)] = true
 			res += " " + columnName + " "
+			columnHeader = append(columnHeader, tablewriter.Title(columnName))
 		}
 	}
 	res += "\n" // new line as a conclusion
@@ -129,25 +136,42 @@ func display() string { // return the display string
 	if *Registers[ROWS_REG] != ALL_ROWS {
 		for _, rowIndPointer := range (*(Registers[ROWS_REG])).([]*uint32) {
 			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+			currentRow := []string{}
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
 					res += " " + supValToString(asValue) + " "
+					currentRow = append(currentRow, supValToString(asValue))
 				}
 			}
+			data = append(data, currentRow)
 			res += "\n" // new row
 		}
 	} else {
 		for i := range tableAddress.Rows {
 			rowIndPointer := &i
+			currentRow := []string{}
 			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
 					res += " " + supValToString(asValue) + " "
+					currentRow = append(currentRow, supValToString(asValue))
 				}
 			}
+			data = append(data, currentRow)
 			res += "\n" // new row
+		}
+	}
+	if len(data) > 0 {
+		mytable.SetHeader(columnHeader)
+		mytable.AppendBulk(data)
+		mytable.Render()
+	} else {
+		if len(columnHeader) > 0 {
+			data = append(data, columnHeader)
+			mytable.AppendBulk(data)
+			mytable.Render()
 		}
 	}
 	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.

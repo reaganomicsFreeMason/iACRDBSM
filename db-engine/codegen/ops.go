@@ -109,4 +109,16 @@ func (o UpdateTableOp) GetOpName() string {
 	return "UpdateTableOp"
 }
 
+type DeleteRowsOp struct{}
+
+func (o DeleteRowsOp) GetOpName() string {
+	return "DeleteRowsOp"
+}
+
+type DeleteColsOp struct{}
+
+func (o DeleteColsOp) GetOpName() string {
+	return "DeleteColsOp"
+}
+
 // ALTER TABLE TO DO

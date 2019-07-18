@@ -2,7 +2,6 @@ package cores
 
 import (
 	"iACRDBSM/db-engine/codegen"
-	"iACRDBSM/db-engine/parser"
 	"iACRDBSM/db-engine/virtual_machine"
 )
 
@@ -15,7 +14,7 @@ to interact with iACRDBSM. A rough overview is as follows:
 */
 func ProcessSQLString(sqlstr string) (string, error) {
 	//Parse input string into an AST
-	ast, parseErr := parseInput(sqlstr)
+	ast, parseErr := ParseInput(sqlstr)
 	if parseErr != nil {
 		return "", parseErr
 	}
@@ -33,14 +32,4 @@ func ProcessSQLString(sqlstr string) (string, error) {
 	}
 
 	return results, nil
-}
-
-// TODO: Probably move this to a parse file with any other parse stuff we need in the future
-func parseInput(sqlString string) (*parser.SelectStmt, error) {
-	ast := &parser.SelectStmt{}
-	parseErr := parser.SQLParser.ParseString(sqlString, ast)
-	if parseErr != nil {
-		return nil, parseErr
-	}
-	return ast, nil
 }

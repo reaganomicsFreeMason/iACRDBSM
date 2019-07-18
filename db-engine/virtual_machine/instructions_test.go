@@ -45,14 +45,14 @@ func TestNoBad(t *testing.T) {
 	})
 	// fmt.Println(R1)
 	// fmt.Println(theTable, theDataBase)
-	res, _ := ExecByteCode([]codegen.ByteCodeOp{
+	res, err := ExecByteCode([]codegen.ByteCodeOp{
 		codegen.GetTableOp{"LongLiveSanjitPart2"},
 		codegen.AddRowOp{uint32(0)},
 		codegen.AddRowOp{uint32(1)},
 		codegen.AddColumnOp{"col1"},
 		codegen.AddColumnOp{"col2"},
-		// codegen.FilterOp{"col2", "two"},
-		// codegen.UpdateTableOp{[]string{"col2"}, []string{"three"}},
+		codegen.FilterOp{"col2", "two"},
+		codegen.UpdateTableOp{[]string{"col2"}, []string{"three"}},
 		codegen.AddRowOp{uint32(0)},
 		codegen.AddRowOp{uint32(1)},
 		codegen.AddColumnOp{"col1"},
@@ -60,5 +60,6 @@ func TestNoBad(t *testing.T) {
 
 		// fix repeated thing
 	})
+	t.Log("error: \n", err)
 	t.Log("\n" + res)
 }

@@ -47,3 +47,7 @@ func TestMakeTable(t *testing.T) {
 func TestInsert(t *testing.T) {
 	PrintInsns(t, "INSERT INTO t1 (col1, col2, col3,) VALUES (v1, v2, v3,)")
 }
+
+func TestUpdate(t *testing.T) {
+	PrintInsns(t, "UPDATE tablename SET col1 = v, col2 = v, col3 = v, WHERE col1 = v,")
+}

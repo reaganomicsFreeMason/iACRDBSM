@@ -46,18 +46,30 @@ func TestSelect(t *testing.T) {
 	}
 }
 
-func TestCreateTable(t *testing.T) {
+func returnAST(t *testing.T, sqlStmt string) *SqlStmt {
 	ast := &SqlStmt{}
-	_ = SQLParser.ParseString("CREATE TABLE name (col1 int, col2 float, col3 string)", ast)
+	err := SQLParser.ParseString(sqlStmt, ast)
+	if err != nil {
+		t.Log("Parse Error " + err.Error())
+	}
+	return ast
+}
+
+func TestCreateTable(t *testing.T) {
+	ast := returnAST(t, "CREATE TABLE name (col1 int, col2 float, col3 string)")
 	assert.Equal(t, "name", ast.CreateTable.TableName, "Tablename name doesn't match")
-	assert.Equal(t, "col1", ast.CreateTable.ColInfos[0].ColName)
-	assert.Equal(t, "int", ast.CreateTable.ColInfos[0].ColType)
+	assert.Equal(t, "col1", ast.CreateTable.ColTypeInfos[0].ColName)
+	assert.Equal(t, "int", ast.CreateTable.ColTypeInfos[0].ColType)
 }
 
 func TestInsert(t *testing.T) {
-	ast := &SqlStmt{}
-	_ = SQLParser.ParseString("INSERT INTO tablename (col1, col2, col3,) VALUES (v1, v2, v3,)", ast)
+	ast := returnAST(t, "INSERT INTO tablename (col1, col2, col3,) VALUES (v1, v2, v3,)")
 	assert.Equal(t, "tablename", ast.Insert.TableName)
 	assert.Equal(t, "col1", ast.Insert.ColNames[0])
 	assert.Equal(t, "v1", ast.Insert.ValNames[0])
+}
+
+func TestUpdate(t *testing.T) {
+	ast := returnAST(t, "UPDATE tablename SET col1 = 2, col2 = 3, col3 = 4, WHERE col1 = 3,")
+	assert.Equal(t, "tablename", ast.Update.TableName)
 }

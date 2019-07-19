@@ -259,12 +259,26 @@ func (dt *DataTable) GetColumn(colName string) (*ColumnInfoMap, error) {
 	defer dt.l.RUnlock()
 
 	column, found := dt.columnsMap[colName]
-	//TODO(lgong): need to deep copy
 
 	if !found {
 		return nil, errors.New("no column there")
 	}
-	return &column, nil
+
+	//TODO(lgong): bug need to deep copy
+	copy := ColumnInfoMap{}
+	copy.Index = column.Index
+	copy.Type = column.Type
+	copy.Values = make(map[SupportedValueType]ValueToRowMap)
+
+	for key, value := range column.Values {
+		valuecopy := ValueToRowMap{}
+		for row := range value {
+			valuecopy[row] = true
+		}
+		copy.Values[key] = valuecopy
+	}
+
+	return &copy, nil
 
 }
 

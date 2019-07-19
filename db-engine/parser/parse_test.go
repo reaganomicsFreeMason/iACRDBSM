@@ -67,9 +67,15 @@ func TestDelete(t *testing.T) {
 	assert.Equal(t, 2, *ast.Delete.Conditions[0].ColValue.Int)
 }
 
-func TestAlterTable(t *testing.T) {
+func TestAlterTableAdd(t *testing.T) {
 	ast := returnAST(t, "ALTER TABLE t ADD c int")
 	assert.Equal(t, "t", ast.AlterTable.TableName)
-	assert.Equal(t, "c", ast.AlterTable.ColName)
-	assert.Equal(t, "int", ast.AlterTable.ColType)
+	assert.Equal(t, "c", ast.AlterTable.AlterExpr.AddColumnStmt.ColTypeInfo.ColName)
+	assert.Equal(t, "int", ast.AlterTable.AlterExpr.AddColumnStmt.ColTypeInfo.ColType)
+}
+
+func TestAlterTableDrop(t *testing.T) {
+	ast := returnAST(t, "ALTER TABLE t DROP COLUMN c")
+	assert.Equal(t, "t", ast.AlterTable.TableName)
+	assert.Equal(t, "c", ast.AlterTable.AlterExpr.DropColumnStmt.ColumnName)
 }

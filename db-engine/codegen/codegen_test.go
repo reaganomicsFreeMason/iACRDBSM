@@ -63,6 +63,10 @@ func TestDelete(t *testing.T) {
 	PrintInsns(t, "DELETE FROM t WHERE c = 4,")
 }
 
-func TestAlterTable(t *testing.T) {
+func TestAlterTableAddColumn(t *testing.T) {
 	PrintInsns(t, "ALTER TABLE t ADD c int")
+}
+
+func TestAlterTableDropColumn(t *testing.T) {
+	PrintInsns(t, "ALTER TABLE t DROP COLUMN c")
 }

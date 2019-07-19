@@ -181,6 +181,17 @@ func (dt *DataTable) DeleteColumn(columnName string) error { // we should make s
 		return errors.New("No column there ")
 	}
 	columnInd := dt.columnsMap[columnName].Index
+
+	for _, row := range dt.rows {
+		if columnInd == 0 {
+			row = row[columnInd+1:]
+		} else if columnInd == len(row) {
+			row = row[:columnInd]
+		} else {
+			row = append(row[:columnInd], row[columnInd+1:]...)
+		}
+	}
+
 	delete(dt.columnsMap, columnName)
 	dt.columnNames[columnInd] = "" // signifies that has been deleted
 	return nil
@@ -252,7 +263,22 @@ func (dt *DataTable) GetColumn(colName string) (*ColumnInfoMap, error) {
 	if !found {
 		return nil, errors.New("no column there")
 	}
-	return &column, nil
+
+	//TODO(lgong): bug need to deep copy
+	copy := ColumnInfoMap{}
+	copy.Index = column.Index
+	copy.Type = column.Type
+	copy.Values = make(map[SupportedValueType]ValueToRowMap)
+
+	for key, value := range column.Values {
+		valuecopy := ValueToRowMap{}
+		for row := range value {
+			valuecopy[row] = true
+		}
+		copy.Values[key] = valuecopy
+	}
+
+	return &copy, nil
 
 }
 
@@ -313,6 +339,46 @@ func (dt *DataTable) GetAllRowNames(goodIndices map[uint32]bool) string {
 		ret += "\n" // new row
 	}
 	return ret
+
+// GetNumCols Returns the number of rows
+func (dt *DataTable) GetNumCols() int {
+	dt.l.RLock()
+	defer dt.l.RUnlock()
+
+	return len(dt.columnsMap)
+}
+
+// GetNumRows Returns the number of rows
+func (dt *DataTable) GetNumRows() int {
+	dt.l.RLock()
+	defer dt.l.RUnlock()
+
+	return (len(dt.rows) - len(dt.deletedRows))
+}
+
+// GetOrderedColumn returns an array of supported value types of the column in order
+func (dt *DataTable) GetOrderedColumn(colName string) ([]SupportedValueType, error) {
+
+	dt.l.RLock() // reader lock on datatable
+	defer dt.l.RUnlock()
+
+	column, found := dt.columnsMap[colName]
+
+	if !found {
+		return nil, errors.New("no column there")
+	}
+
+	colIndex := column.Index
+
+	returnCol := []SupportedValueType{}
+
+	for _, row := range dt.rows {
+		val := row[colIndex]
+		copyVal := SupportedValueTypeImpl{Name: val.GetName(), Value: val.GetValue()}
+		returnCol = append(returnCol, copyVal)
+	}
+
+	return returnCol, nil
 }
 
 // TODO: this doesn't work because of weird typing things

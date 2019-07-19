@@ -278,6 +278,14 @@ func deleteCols() error {
 
 }
 
+func deleteColFromTable(instruction codegen.DeleteColFromTableOp) error {
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	colName := instruction.ColName
+	tableAddress.DeleteColumn(colName)
+	return nil
+}
+
 func updateTable(instruction codegen.UpdateTableOp) error {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
@@ -359,6 +367,8 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			deleteRows()
 		case "DeleteColsOp":
 			deleteCols()
+		case "DeleteColFromTableOp":
+			deleteColFromTable(instruction.(codegen.DeleteColFromTableOp))
 		case "InsertColumnOp":
 			insertColumn(instruction.(codegen.InsertColumnOp))
 		case "DisplayOp":

@@ -121,6 +121,14 @@ func (o DeleteColsOp) GetOpName() string {
 	return "DeleteColsOp"
 }
 
+type DeleteColFromTableOp struct {
+	ColName string
+}
+
+func (o DeleteColFromTableOp) GetOpName() string {
+	return "DeleteColFromTableOp"
+}
+
 type DisplayOp struct{}
 
 func (o DisplayOp) GetOpName() string {

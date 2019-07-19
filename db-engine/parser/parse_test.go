@@ -79,3 +79,13 @@ func TestAlterTableDrop(t *testing.T) {
 	assert.Equal(t, "t", ast.AlterTable.TableName)
 	assert.Equal(t, "c", ast.AlterTable.AlterExpr.DropColumnStmt.ColumnName)
 }
+
+func TestDropTableOp(t *testing.T) {
+	ast := returnAST(t, "DROP TABLE t")
+	assert.Equal(t, "t", ast.DropTable.TableName)
+}
+
+func TestTruncateTableOp(t *testing.T) {
+	ast := returnAST(t, "TRUNCATE TABLE t")
+	assert.Equal(t, "t", ast.TruncateTable.TableName)
+}

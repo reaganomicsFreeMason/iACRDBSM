@@ -30,6 +30,10 @@ func GenByteCode(stmt *ast.SqlStmt) ([]ByteCodeOp, error) {
 		visitDelete(*stmt.Delete)
 	} else if stmt.AlterTable != nil {
 		visitAlterTable(*stmt.AlterTable)
+	} else if stmt.DropTable != nil {
+		visitDropTable(*stmt.DropTable)
+	} else if stmt.TruncateTable != nil {
+		visitTruncateTable(*stmt.TruncateTable)
 	}
 	return insns, nil
 }
@@ -117,6 +121,18 @@ func visitAddColumn(stmt ast.AddColumnStmt) {
 func visitDropColumn(stmt ast.DropColumnStmt) {
 	colName := stmt.ColumnName
 	insns = append(insns, DeleteColFromTableOp{colName})
+}
+
+func visitDropTable(stmt ast.DropTableStmt) {
+	tableName := stmt.TableName
+	insns = append(insns, GetTableOp{tableName})
+	insns = append(insns, DeleteTableOp{})
+}
+
+func visitTruncateTable(stmt ast.TruncateTableStmt) {
+	tableName := stmt.TableName
+	insns = append(insns, GetTableOp{tableName})
+	insns = append(insns, DeleteRowsOp{})
 }
 
 func visitConditions(condList []*ast.EqCondition) {

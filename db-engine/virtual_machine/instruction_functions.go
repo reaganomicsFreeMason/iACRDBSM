@@ -448,6 +448,8 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			deleteColFromTable(instruction.(codegen.DeleteColFromTableOp))
 		case "InsertColumnOp":
 			insertColumn(instruction.(codegen.InsertColumnOp))
+		case "ClearOp":
+			clear()
 		case "DisplayOp":
 			res := display()
 			clear()

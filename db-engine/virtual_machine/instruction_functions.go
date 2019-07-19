@@ -69,6 +69,7 @@ func getTable(instruction codegen.GetTableOp) error {
 	return nil
 }
 
+//Adds columns to the registers to filter them
 func addColumn(instruction codegen.AddColumnOp) error {
 	columnName := instruction.Colname
 	if Registers[COLUMNS_REG] == nil {
@@ -83,6 +84,7 @@ func addColumn(instruction codegen.AddColumnOp) error {
 	return nil
 }
 
+//Adds rows to the registers to filter them
 func addRow(instruction codegen.AddRowOp) error {
 	rowInd := instruction.Idx
 	if Registers[ROWS_REG] == nil {
@@ -100,6 +102,7 @@ func addRow(instruction codegen.AddRowOp) error {
 	return nil
 }
 
+//Empties the registers
 func clear() error {
 	Registers[COLUMNS_REG] = nil
 	Registers[ROWS_REG] = nil
@@ -111,7 +114,7 @@ func display() string { // return the display string
 	res := ""
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	columnNames := tableAddress.ColumnNames
+	columnNames := tableAddress.GetAllColumnNames()
 	columnHeader := []string{}
 	data := [][]string{}
 	mytable := tablewriter.NewWriter(os.Stdout)
@@ -132,7 +135,7 @@ func display() string { // return the display string
 	}
 	res += "\n" // new line as a conclusion
 
-	// TODO: error handle THIS SHIT THIS IS NASTY
+	// TODO: error handle this
 	if *Registers[ROWS_REG] != ALL_ROWS {
 		keys := []uint32{}
 		for rowIndPointer := range (*(Registers[ROWS_REG])).(map[uint32]bool) {
@@ -155,7 +158,7 @@ func display() string { // return the display string
 			data = append(data, retRow)
 		}
 	} else {
-		for i := range tableAddress.Rows {
+		for i := range tableAddress.Rows { //FIXx
 			rowIndPointer := &i
 			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
 			retRow := []string{}
@@ -182,6 +185,7 @@ func display() string { // return the display string
 	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
 }
 
+//Filters columns
 func filter(instruction codegen.FilterOp) error {
 	// value is a string; convert it to the supportedValue
 
@@ -226,7 +230,7 @@ func insert(instruction codegen.InsertOp) error {
 	}
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table // need this soon
-	tableColNamesOfficial := tableAddress.ColumnNames
+	tableColNamesOfficial := tableAddress.GetAllColumnNames()
 	rowToInsert := make(key_value.Row, len(tableColNamesOfficial)) // just give everything a null value for now
 	for i, tableColName := range tableColNamesOfficial {
 		if tableColName == "" {
@@ -322,6 +326,7 @@ func updateTable(instruction codegen.UpdateTableOp) error {
 	return nil
 }
 
+//Adds a column to the table
 func insertColumn(instruction codegen.InsertColumnOp) error {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
@@ -335,7 +340,7 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	// fmt.Println(colName, valName)
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	colType := tableAddress.columnnames[colName].Type
+	colType := tableAddress.columnNames[colName].Type //FIX
 	// fmt.Println(colType)
 	var asInterface interface{}
 	switch colType {

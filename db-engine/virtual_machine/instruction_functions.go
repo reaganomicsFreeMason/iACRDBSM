@@ -3,10 +3,12 @@ package virtual_machine
 import ( // fucking shit go is dumb
 
 	"errors"
+	"fmt"
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
 	"sort"
 	"strconv"
+	// "github.com/olekukonko/tablewriter"
 )
 
 const (
@@ -65,7 +67,6 @@ func getTable(instruction codegen.GetTableOp) error {
 	return nil
 }
 
-//Adds columns to the registers to filter them
 func addColumn(instruction codegen.AddColumnOp) error {
 	columnName := instruction.Colname
 	if Registers[COLUMNS_REG] == nil {
@@ -80,7 +81,6 @@ func addColumn(instruction codegen.AddColumnOp) error {
 	return nil
 }
 
-//Adds rows to the registers to filter them
 func addRow(instruction codegen.AddRowOp) error {
 	rowInd := instruction.Idx
 	if Registers[ROWS_REG] == nil {
@@ -98,7 +98,6 @@ func addRow(instruction codegen.AddRowOp) error {
 	return nil
 }
 
-//Empties the registers
 func clear() error {
 	Registers[COLUMNS_REG] = nil
 	Registers[ROWS_REG] = nil
@@ -107,13 +106,13 @@ func clear() error {
 
 func display() string { // return the display string
 	// assume, for now, everything is valid in the registers
+	res := ""
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
 	columnNames := tableAddress.GetAllColumnNames()
-	res := ""
-	//columnHeader := []string{}
-	//data := [][]string{}
-	//mytable := tablewriter.NewWriter(os.Stdout)
+	columnHeader := []string{}
+	data := [][]string{}
+	// mytable := tablewriter.NewWriter(os.Stdout)
 
 	setOfQueriedColumns := map[string]bool{}
 	goodIndices := map[uint32]bool{}
@@ -126,11 +125,12 @@ func display() string { // return the display string
 		if _, found := setOfQueriedColumns[columnName]; found {
 			goodIndices[uint32(i)] = true
 			res += " " + columnName + " "
+			// columnHeader = append(columnHeader, tablewriter.Title(columnName))
 		}
 	}
 	res += "\n" // new line as a conclusion
 
-	// TODO: error handle this
+	// TODO: error handle THIS SHIT THIS IS NASTY
 	if *Registers[ROWS_REG] != ALL_ROWS {
 		keys := []uint32{}
 		for rowIndPointer := range (*(Registers[ROWS_REG])).(map[uint32]bool) {
@@ -140,22 +140,47 @@ func display() string { // return the display string
 			return keys[i] < keys[j]
 		})
 		for _, rowIndPointer := range keys {
+			retRow := []string{}
 			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
-					res += " " + key_value.SupValToString(asValue) + " "
+					res += " " + supValToString(asValue) + " "
+					retRow = append(retRow, supValToString(asValue))
 				}
 			}
 			res += "\n" // new row
+			data = append(data, retRow)
 		}
 	} else {
-		res += tableAddress.GetAllRowNames(goodIndices)
+		numRows := tableAddress.GetNumRows()
+		for i := 0; i < numRows; i++ {
+			rowIndPointer := &i
+			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+			retRow := []string{}
+			for i, elem := range row {
+				if _, found := goodIndices[uint32(i)]; found {
+					asValue := elem.(key_value.SupportedValueType)
+					res += " " + supValToString(asValue) + " "
+					retRow = append(retRow, supValToString(asValue))
+				}
+			}
+			res += "\n" // new row
+			data = append(data, retRow)
+		}
 	}
-	return res[1 : len(res)-1]
+	if len(columnHeader) > 0 {
+		if len(data) > 0 && len(data[0]) > 0 {
+			// mytable.SetHeader(columnHeader)
+		} else {
+			data = append(data, columnHeader)
+		}
+		// mytable.AppendBulk(data)
+		// mytable.Render()
+	}
+	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
 }
 
-//Filters columns
 func filter(instruction codegen.FilterOp) error {
 	// value is a string; convert it to the supportedValue
 
@@ -188,7 +213,6 @@ func filter(instruction codegen.FilterOp) error {
 	return nil
 }
 
-//Inserts a row to the table
 func insert(instruction codegen.InsertOp) error {
 	// first, make a map from the colNames to the values
 	colNameToValue := map[string]string{}
@@ -305,7 +329,6 @@ func updateTable(instruction codegen.UpdateTableOp) error {
 	return nil
 }
 
-//Adds a column to the table
 func insertColumn(instruction codegen.InsertColumnOp) error {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
@@ -319,7 +342,8 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	// fmt.Println(colName, valName)
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	colType := tableAddress.columnNames[colName].Type //FIX
+	colInfo, _ := tableAddress.GetColumn(colName)
+	colType := colInfo.Type
 	// fmt.Println(colType)
 	var asInterface interface{}
 	switch colType {
@@ -333,9 +357,21 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	return key_value.SupportedValueTypeImpl{colType, asInterface}
 }
 
+func supValToString(asValue key_value.SupportedValueType) string {
+	switch asValue.GetName() {
+	case "Supported-Value-Type.int":
+		return strconv.Itoa(asValue.GetValue().(int))
+	case "Supported-Value-Type.float":
+		return fmt.Sprintf("%f", asValue.GetValue().(float32))
+	case "Supported-Value-Type.string":
+		return asValue.GetValue().(string)
+	}
+	return ""
+}
+
 // TODO replace GetRedIndex is now replaced with the valid register named; put
 // them in later.
-// TODO ERROR HANDLING
+// TODO HELLA FUCKING ERROR HANDLING
 
 func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 	// FOR TESTING RID OF THIS LATER!!!!!~

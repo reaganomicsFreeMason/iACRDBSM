@@ -8,17 +8,15 @@ import ( // fucking shit go is dumb
 	"iACRDBSM/db-engine/datastore/key_value"
 	"sort"
 	"strconv"
+	"sync"
 	// "github.com/olekukonko/tablewriter"
 )
 
 const (
-	R1             = codegen.R1
-	R2             = codegen.R2
-	R3             = codegen.R3
-	TABLE_NAME_REG = codegen.R4
-	TABLE_REG      = codegen.R5
-	COLUMNS_REG    = codegen.R6
-	ROWS_REG       = codegen.R7
+	TABLE_NAME_REG = codegen.R1
+	TABLE_REG      = codegen.R2
+	COLUMNS_REG    = codegen.R3
+	ROWS_REG       = codegen.R4
 	ALL_ROWS       = -1 // signifies that all of the rows are being loaded into the register
 )
 
@@ -26,28 +24,14 @@ type Register *interface{}
 
 var (
 	numRegisters = 20
+	packetSize   = 4
 	Registers    = make([]Register, numRegisters) // each one is an empty register for now
 	DataBase     = key_value.NewDataBase()
-	// _            = DataBase.NewTable(
-	// 	"TestTable",
-	// 	[]string{"a", "b", "c"},
-	// 	[]string{"Supported-Value-Type.int",
-	// 		"Supported-Value-Type.float",
-	// 		"Supported-Value-Type.string"},
-	// )
-)
 
-// func loadInstruction(instruction codegen.LoadValOp) error {
-// 	idx := instruction.idx
-// 	value := instruction.value
-// 	if idx <= 0 {
-// 		return errors.New("This is register is like your brain: non-existent.")
-// 	} else if value == nil {
-// 		return errors.New("Giving a stupid fucking null value, moron. ")
-// 	}
-// 	Registers[idx] = &value
-// 	return nil
-// }
+	numPackets     = numRegisters / packetSize      // floor division
+	packetIndexSet = make(map[int]bool, numPackets) // map
+	packetLock     = sync.Mutex{}
+)
 
 // returns whether or not was successful
 func getTable(instruction codegen.GetTableOp) error {

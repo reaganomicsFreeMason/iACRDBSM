@@ -100,9 +100,23 @@ func visitDelete(stmt ast.DeleteStmt) {
 func visitAlterTable(stmt ast.AlterTableStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
-	colName := stmt.ColName
-	colType := stmt.ColType
+	if stmt.AlterExpr.AddColumnStmt != nil {
+		visitAddColumn(*stmt.AlterExpr.AddColumnStmt)
+	} else if stmt.AlterExpr.DropColumnStmt != nil {
+		visitDropColumn(*stmt.AlterExpr.DropColumnStmt)
+	}
+
+}
+
+func visitAddColumn(stmt ast.AddColumnStmt) {
+	colName := stmt.ColTypeInfo.ColName
+	colType := stmt.ColTypeInfo.ColType
 	insns = append(insns, InsertColumnOp{colName, colType})
+}
+
+func visitDropColumn(stmt ast.DropColumnStmt) {
+	colName := stmt.ColumnName
+	insns = append(insns, DeleteColFromTableOp{colName})
 }
 
 func visitConditions(condList []*ast.EqCondition) {

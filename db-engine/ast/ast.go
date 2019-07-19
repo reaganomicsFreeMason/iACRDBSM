@@ -72,7 +72,19 @@ type DeleteStmt struct {
 }
 
 type AlterTableStmt struct {
-	TableName string `"TABLE" @Ident`
-	ColName   string `"ADD" @Ident`
-	ColType   string `@Ident`
+	TableName string     `"TABLE" @Ident`
+	AlterExpr *AlterExpr `@@`
+}
+
+type AlterExpr struct {
+	DropColumnStmt *DropColumnStmt `  "DROP"  @@`
+	AddColumnStmt  *AddColumnStmt  `| "ADD" @@`
+}
+
+type DropColumnStmt struct {
+	ColumnName string `"COLUMN" @Ident`
+}
+
+type AddColumnStmt struct {
+	ColTypeInfo *ColTypeInfo `@@`
 }

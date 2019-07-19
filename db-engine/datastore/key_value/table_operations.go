@@ -181,6 +181,17 @@ func (dt *DataTable) DeleteColumn(columnName string) error { // we should make s
 		return errors.New("No column there ")
 	}
 	columnInd := dt.columnsMap[columnName].Index
+
+	for _, row := range dt.rows {
+		if columnInd == 0 {
+			row = row[columnInd+1:]
+		} else if columnInd == len(row) {
+			row = row[:columnInd]
+		} else {
+			row = append(row[:columnInd], row[columnInd+1:]...)
+		}
+	}
+
 	delete(dt.columnsMap, columnName)
 	dt.columnNames[columnInd] = "" // signifies that has been deleted
 	return nil
@@ -248,6 +259,7 @@ func (dt *DataTable) GetColumn(colName string) (*ColumnInfoMap, error) {
 	defer dt.l.RUnlock()
 
 	column, found := dt.columnsMap[colName]
+	//TODO(lgong): need to deep copy
 
 	if !found {
 		return nil, errors.New("no column there")

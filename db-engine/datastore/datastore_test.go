@@ -153,6 +153,7 @@ func TestDeleteColumnSingleThread(t *testing.T) {
 		[]string{"Sanjit1", "Sanjit2", "Sanjit3"},
 		[]string{"Supported-Value-Type.int", "Supported-Value-Type.float", "Supported-Value-Type.string"},
 	)
+
 	dt, err := testDB.GetTable("LongLiveSanjit")
 	assert.NoError(t, err)
 	assert.NotNil(t, dt)
@@ -161,6 +162,38 @@ func TestDeleteColumnSingleThread(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, dt.GetAllColumnNames(), []string{"Sanjit2", "Sanjit3"})
+
+}
+
+func TestDeleteColumnAndGetRowSingleThread(t *testing.T) {
+	testDB := key_value.NewDataBase()
+	testDB.NewTable(
+		"LongLiveSanjit",
+		[]string{"Sanjit1", "Sanjit2", "Sanjit3"},
+		[]string{"Supported-Value-Type.int", "Supported-Value-Type.float", "Supported-Value-Type.string"},
+	)
+
+	dt, err := testDB.GetTable("LongLiveSanjit")
+	assert.NoError(t, err)
+	assert.NotNil(t, dt)
+
+	dt.PutRow(key_value.Row{
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.int", Value: 1},
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.float", Value: 1.3},
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.string", Value: "sanjawanja"},
+	})
+
+	dt.DeleteColumn("Sanjit1")
+
+	row, err := dt.GetRow(0)
+
+	rowVals := []interface{}{}
+	for _, obj := range row {
+		rowVals = append(rowVals, obj.GetValue())
+	}
+
+	assert.NoError(t, err)
+	assert.Equal(t, []interface{}{1.3, "sanjawanja"}, rowVals)
 
 }
 

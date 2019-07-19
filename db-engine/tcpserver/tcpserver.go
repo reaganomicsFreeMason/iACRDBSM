@@ -55,9 +55,13 @@ func handleClient(conn net.Conn) {
 			// Process SQL string
 			result, err := core.ProcessSQLString(sqlstr)
 			if err != nil {
-				fmt.Fprintln(conn, err.Error())
+				fmt.Fprintln(conn, err.Error()+"\r")
 			} else {
-				fmt.Fprintln(conn, "Result: "+result)
+				// This is really bad, and we should probably not check
+				// that the end of the result string is a \r on the client side
+				fmt.Fprintln(conn, result+"\r")
+				fmt.Println("SERVER RESULT")
+				fmt.Println(result)
 			}
 		}
 	}

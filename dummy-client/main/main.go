@@ -29,10 +29,10 @@ func main() {
 	for {
 		// Simple REPL that sends SQL strings to the server
 		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("iARCDBSM: ")
+		fmt.Print("\n iARCDBSM: ")
 		text, _ := reader.ReadString('\n')
 		fmt.Fprintf(conn, text+"\n")
-		message, err := bufio.NewReader(conn).ReadString('\n')
+		message, err := bufio.NewReader(conn).ReadString('\r')
 		if err != nil {
 			fmt.Println("Issue reading server response " + err.Error())
 		} else {

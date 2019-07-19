@@ -194,7 +194,7 @@ func display(startIndex int) string { // return the display string
 			res += "|" + "\n" // new row
 		}
 	}
-	res += newLine + "\r"
+	res += newLine
 	return res
 }
 

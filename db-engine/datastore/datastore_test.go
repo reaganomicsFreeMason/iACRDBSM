@@ -111,7 +111,6 @@ func TestPutRowSingleThread(t *testing.T) {
 	}
 
 	assert.Equal(t, []interface{}{1, 1.3, "sanjawanja", 2}, rowVals)
-
 }
 
 func TestUpdateRowSingleThread(t *testing.T) {

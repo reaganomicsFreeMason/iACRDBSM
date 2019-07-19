@@ -38,7 +38,7 @@ func RunServer() {
 			os.Exit(1)
 		}
 
-		handleClient(conn)
+		go handleClient(conn)
 	}
 }
 

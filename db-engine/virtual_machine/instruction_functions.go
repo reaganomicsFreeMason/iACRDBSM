@@ -425,7 +425,7 @@ func supValToString(asValue key_value.SupportedValueType) string {
 	case "Supported-Value-Type.int":
 		return strconv.Itoa(asValue.GetValue().(int))
 	case "Supported-Value-Type.float":
-		return fmt.Sprintf("%f", asValue.GetValue().(float32))
+		return fmt.Sprintf("%f", asValue.GetValue().(float64))
 	case "Supported-Value-Type.string":
 		return asValue.GetValue().(string)
 	}
@@ -522,7 +522,6 @@ func getToken() int {
 		toReturn = key
 		break
 	}
-	fmt.Println("GOT KEY " + strconv.FormatInt(int64(toReturn), 10))
 	delete(packetIndexSet, toReturn)
 	cond.L.Unlock()
 	return toReturn
@@ -530,7 +529,6 @@ func getToken() int {
 
 func putToken(startIndex int) { // error will panic for us thanks to sync package
 	cond.L.Lock()
-	fmt.Println("PUTTING KEY " + strconv.FormatInt(int64(startIndex), 10))
 	if _, found := packetIndexSet[startIndex]; found {
 		panic(errors.New("Inconsistent packet index set state!!!"))
 	}

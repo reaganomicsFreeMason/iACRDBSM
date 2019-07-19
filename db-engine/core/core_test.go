@@ -47,4 +47,6 @@ func ExecuteAndShow(t *testing.T, cmdString string, tableName string) {
 
 func TestSelect(t *testing.T) {
 	ExecuteAndShow(t, "CREATE TABLE tablename (c1 string,)", "tablename")
+	ExecuteAndShow(t, "INSERT INTO tablename (c1,) VALUES (3,)", "tablename")
+	ExecuteAndShow(t, "SELECT c1, FROM tablename", "tablename")
 }

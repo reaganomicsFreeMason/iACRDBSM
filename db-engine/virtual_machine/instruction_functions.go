@@ -234,6 +234,9 @@ func filter(instruction codegen.FilterOp, startIndex int) error {
 	var asInter interface{}
 	asInter = newListOfPointers
 	Registers[startIndex+ROWS_REG] = &asInter
+
+	fmt.Println(asInter)
+
 	return nil
 }
 

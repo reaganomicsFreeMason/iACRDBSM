@@ -354,7 +354,8 @@ func (dt *DataTable) GetNumRows() int {
 	dt.l.RLock()
 	defer dt.l.RUnlock()
 
-	return (len(dt.rows) - len(dt.deletedRows))
+	// return (len(dt.rows) - len(dt.deletedRows))
+	return len(dt.rows)
 }
 
 // GetNumRows Returns the number of rows

@@ -295,6 +295,26 @@ func (dt *DataTable) GetAllColumnNames() []string {
 	return res
 }
 
+//GetAllRowNames reeturns a 2D array of strings of all column names in the datatable
+func (dt *DataTable) GetAllRowNames(goodIndices map[uint32]bool) string {
+	dt.l.RLock()
+	defer dt.l.RUnlock()
+
+	ret := ""
+	for i := range dt.rows {
+		rowIndPointer := &i
+		row, _ := dt.GetRow(uint64(*rowIndPointer))
+		for i, elem := range row {
+			if _, found := goodIndices[uint32(i)]; found {
+				asValue := elem.(SupportedValueType)
+				ret += " " + SupValToString(asValue) + " "
+			}
+		}
+		ret += "\n" // new row
+	}
+	return ret
+}
+
 // TODO: this doesn't work because of weird typing things
 // GetColumnType returns the type of the column specified
 // func (dt DataTable) GetColumnType(colName string) (SupportedValueType, error) {

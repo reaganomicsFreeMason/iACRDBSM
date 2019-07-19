@@ -1,5 +1,10 @@
 package key_value
 
+import (
+	"fmt"
+	"strconv"
+)
+
 // var (
 // 	valueInfoInitialCap   = 10
 // 	NameToInfoConstructor = map[string]func() map[supportedValueType]valueToRowMap{
@@ -47,6 +52,18 @@ func (i SupportedValueTypeImpl) GetName() string {
 
 func (i SupportedValueTypeImpl) GetValue() interface{} {
 	return i.Value
+}
+
+func SupValToString(asValue SupportedValueType) string {
+	switch asValue.GetName() {
+	case "Supported-Value-Type.int":
+		return strconv.Itoa(asValue.GetValue().(int))
+	case "Supported-Value-Type.float":
+		return fmt.Sprintf("%f", asValue.GetValue().(float32))
+	case "Supported-Value-Type.string":
+		return asValue.GetValue().(string)
+	}
+	return ""
 }
 
 // type SupportedInt struct {

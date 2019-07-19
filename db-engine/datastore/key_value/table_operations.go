@@ -337,6 +337,32 @@ func (dt *DataTable) GetNumRows() int {
 	return (len(dt.rows) - len(dt.deletedRows))
 }
 
+// GetOrderedColumn returns an array of supported value types of the column in order
+func (dt *DataTable) GetOrderedColumn(colName string) ([]SupportedValueType, error) {
+
+	dt.l.RLock() // reader lock on datatable
+	defer dt.l.RUnlock()
+
+	column, found := dt.columnsMap[colName]
+
+	if !found {
+		return nil, errors.New("no column there")
+	}
+
+	colIndex := column.Index
+
+	returnCol := []SupportedValueType{}
+
+	for _, row := range dt.rows {
+		val := row[colIndex]
+		copyVal := SupportedValueTypeImpl{Name: val.GetName(), Value: val.GetValue()}
+		returnCol = append(returnCol, copyVal)
+	}
+
+	return returnCol, nil
+
+}
+
 // TODO: this doesn't work because of weird typing things
 // GetColumnType returns the type of the column specified
 // func (dt DataTable) GetColumnType(colName string) (SupportedValueType, error) {

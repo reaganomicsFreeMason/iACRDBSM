@@ -127,4 +127,13 @@ func (o DisplayOp) GetOpName() string {
 	return "DisplayOp"
 }
 
+type InsertColumnOp struct {
+	ColName string
+	ColType string //int, float, or string
+}
+
+func (o InsertColumnOp) GetOpName() string {
+	return "InsertColumnOp"
+}
+
 // ALTER TABLE TO DO

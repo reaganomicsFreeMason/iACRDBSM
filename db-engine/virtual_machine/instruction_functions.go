@@ -425,7 +425,7 @@ func supValToString(asValue key_value.SupportedValueType) string {
 	case "Supported-Value-Type.int":
 		return strconv.Itoa(asValue.GetValue().(int))
 	case "Supported-Value-Type.float":
-		return fmt.Sprintf("%f", asValue.GetValue().(float32))
+		return fmt.Sprintf("%f", asValue.GetValue().(float64))
 	case "Supported-Value-Type.string":
 		return asValue.GetValue().(string)
 	}

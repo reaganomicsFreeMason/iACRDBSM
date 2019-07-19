@@ -447,12 +447,14 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			err = getTable(instruction.(codegen.GetTableOp), startIndex)
 			if err != nil {
 				clear(startIndex)
+				putToken(putBack)
 				return "", err
 			}
 		case "AddAllColumnsOp":
 			err := addAllColumns(instruction.(codegen.AddAllColumnsOp), startIndex)
 			if err != nil {
 				clear(startIndex)
+				putToken(putBack)
 				return "", err
 			}
 		case "AddColumnOp":

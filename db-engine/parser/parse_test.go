@@ -2,6 +2,7 @@ package parser
 
 import (
 	"fmt"
+	"iACRDBSM/db-engine/ast"
 	"os"
 	"testing"
 
@@ -31,8 +32,8 @@ func TestSelect(t *testing.T) {
 	assert.Equal(t, 2, *ast.Select.Conditions[2].ColValue.Int)
 }
 
-func returnAST(t *testing.T, sqlStmt string) *SqlStmt {
-	ast := &SqlStmt{}
+func returnAST(t *testing.T, sqlStmt string) *ast.SqlStmt {
+	ast := &ast.SqlStmt{}
 	err := SQLParser.ParseString(sqlStmt, ast)
 	if err != nil {
 		t.Log("Parse Error " + err.Error())

@@ -172,6 +172,9 @@ func display(startIndex int) string { // return the display string
 		})
 		for _, rowIndPointer := range keys {
 			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
+			if row == nil {
+				continue
+			}
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
@@ -185,6 +188,9 @@ func display(startIndex int) string { // return the display string
 		for i := 0; i < numRows; i++ {
 			rowIndPointer := &i
 			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+			if row == nil {
+				continue
+			}
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)

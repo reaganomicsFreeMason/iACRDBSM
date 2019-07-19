@@ -9,8 +9,6 @@ import (
 	"iACRDBSM/db-engine/parser"
 	"os"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestMain(m *testing.M) {
@@ -27,13 +25,12 @@ func PrintInsns(t *testing.T, cmdString string) {
 	ast, err := parser.ParseInput(cmdString)
 	if err != nil {
 		t.Log("Parse Error: " + err.Error())
-		assert.Equal(t, 1, 0)
+		os.Exit(1)
 	}
 	insns, _ := GenByteCode(ast)
 	for _, i := range insns {
 		t.Log(i.GetOpName())
 	}
-	assert.Equal(t, 1, 0)
 }
 
 func TestSelect(t *testing.T) {
@@ -46,4 +43,16 @@ func TestMakeTable(t *testing.T) {
 
 func TestInsert(t *testing.T) {
 	PrintInsns(t, "INSERT INTO t1 (col1, col2, col3,) VALUES (v1, v2, v3,)")
+}
+
+func TestUpdate(t *testing.T) {
+	PrintInsns(t, "UPDATE tablename SET col1 = v, col2 = v, col3 = v, WHERE col1 = v,")
+}
+
+func TestQuerySeq(t *testing.T) {
+	PrintInsns(t, "CREATE TABLE tablename (c1 string,)")
+	t.Log("\n")
+	PrintInsns(t, "INSERT INTO tablename (c1,) VALUES (hello,)")
+	t.Log("\n")
+	PrintInsns(t, "SELECT c1, FROM tablename,")
 }

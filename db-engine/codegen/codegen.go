@@ -1,7 +1,9 @@
 package codegen
 
 import (
+	"fmt"
 	"iACRDBSM/db-engine/parser"
+	"strconv"
 )
 
 const bigcap = 500
@@ -22,6 +24,8 @@ func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
 		visitSelect(*stmt.Select)
 	} else if stmt.Insert != nil {
 		visitInsert(*stmt.Insert)
+	} else if stmt.Update != nil {
+		visitUpdate(*stmt.Update)
 	}
 	return insns, nil
 }
@@ -41,11 +45,13 @@ func visitSelect(stmt parser.SelectStmt) {
 		valName := cond.ValName
 		insns = append(insns, FilterOp{colName, valName})
 	}
+
+	insns = append(insns, DisplayOp{})
 }
 
 func visitCreateTable(stmt parser.CreateTableStmt) {
 	tableName := stmt.TableName
-	colInfos := stmt.ColInfos
+	colInfos := stmt.ColTypeInfos
 	colNames := make([]string, 0, bigcap)
 	colTypes := make([]string, 0, bigcap)
 	for _, colInfo := range colInfos {
@@ -59,4 +65,40 @@ func visitInsert(stmt parser.InsertStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
 	insns = append(insns, InsertOp{stmt.ColNames, stmt.ValNames})
+}
+
+func visitUpdate(stmt parser.UpdateStmt) {
+	tableName := stmt.TableName
+	insns = append(insns, GetTableOp{tableName})
+
+	// Want to filter out rows we dont first
+	for _, cond := range stmt.Conditions {
+		colName := cond.ColName
+		valName := cond.ValName
+		insns = append(insns, FilterOp{colName, valName})
+	}
+
+	// Then generate update table instructions
+	for _, colSetVal := range stmt.ColSetVals {
+		colName := colSetVal.ColName
+		colValStruct := colSetVal.ColVal
+		colVal := castValToString(colValStruct)
+
+		insns = append(insns, UpdateTableOp{colName, colVal})
+	}
+}
+
+func castValToString(colValStruct *parser.ColValue) string {
+	// This is silly, but the virtual machine
+	// expects all values to be strings, so we cast our
+	// value back to a string.
+	var colVal string
+	if colValStruct.String != nil {
+		colVal = *colValStruct.String
+	} else if colValStruct.Int != nil {
+		colVal = strconv.Itoa(*colValStruct.Int)
+	} else if colValStruct.Float != nil {
+		colVal = fmt.Sprintf("%f", *colValStruct.Float)
+	}
+	return colVal
 }

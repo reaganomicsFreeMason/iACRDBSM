@@ -23,6 +23,12 @@ func (database *DataBase) NewTable(
 	columnNames,
 	columnTypes []string,
 ) error {
+	if len(columnNames) < len(columnTypes) {
+		return errors.New("less column names specified than column types")
+	} else if len(columnNames) > len(columnTypes) {
+		return errors.New("less column types specified than column names")
+	}
+
 	database.l.Lock() //writer lock on database
 	defer database.l.Unlock()
 
@@ -72,7 +78,7 @@ func (database *DataBase) DeleteTable(tableName string) error {
 
 	table, found := (database.db)[tableName]
 
-	if found {
+	if !found {
 		return errors.New("table not here")
 	}
 
@@ -270,3 +276,32 @@ func (dt *DataTable) GetRow(rowIndex uint64) (Row, error) {
 	}
 	return res, nil
 }
+
+// GetAllColumnNames reeturns an array string of all column names in the datatable
+func (dt *DataTable) GetAllColumnNames() []string {
+	dt.l.RLock()
+	defer dt.l.RUnlock()
+
+	res := []string{}
+	for _, colName := range dt.columnNames {
+		if colName == "" {
+			continue
+		}
+		res = append(res, colName)
+	}
+	return res
+}
+
+// TODO: this doesn't work because of weird typing things
+// GetColumnType returns the type of the column specified
+// func (dt DataTable) GetColumnType(colName string) (SupportedValueType, error) {
+// 	dt.l.RLock() // reader lock on datatable
+// 	defer dt.l.RUnlock()
+
+// 	column, found := dt.columnsMap[colName]
+
+// 	if !found {
+// 		return nil, errors.New("no column there")
+// 	}
+// 	return column.Type, nil
+// }

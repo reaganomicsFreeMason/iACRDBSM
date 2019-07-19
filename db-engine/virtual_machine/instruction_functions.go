@@ -322,6 +322,15 @@ func updateTable(instruction codegen.UpdateTableOp) error {
 	return nil
 }
 
+func insertColumn(instruction codegen.InsertColumnOp) error {
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	colName := instruction.ColName
+	colType := normalToTableType(instruction.ColType)
+	return tableAddress.PutColumn(colName, colType)
+
+}
+
 func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	// fmt.Println(colName, valName)
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
@@ -386,6 +395,8 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			deleteRows()
 		case "DeleteColsOp":
 			deleteCols()
+		case "InsertColumnOp":
+			insertColumn(instruction.(codegen.InsertColumnOp))
 		case "DisplayOp":
 			res := display()
 			clear()

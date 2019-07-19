@@ -1,7 +1,6 @@
 package virtual_machine
 
-import ( // fucking shit go is dumb
-
+import (
 	"errors"
 	"fmt"
 	"iACRDBSM/db-engine/codegen"
@@ -11,7 +10,6 @@ import ( // fucking shit go is dumb
 	"strconv"
 	"strings"
 	"sync"
-	// "github.com/olekukonko/tablewriter"
 )
 
 const (
@@ -132,7 +130,9 @@ func addCell(content string) string {
 		right := border - left
 		return "|" + strings.Repeat(string(" "), left) + content + strings.Repeat(string(" "), right)
 	}
-	//TODO: Check if len(content) < 15 & figure out what to do
+	if border < 0 {
+		return "|" + content[:25] + "..." + content[size-3:]
+	}
 	return "|" + content
 }
 
@@ -161,7 +161,7 @@ func display(startIndex int) string { // return the display string
 	newLine := separator(retTableLen)
 	res += "|" + "\n" + newLine + "\n" // new line as a conclusion
 
-	// TODO: error handle THIS SHIT THIS IS NASTY
+	// TODO: error handle
 	if *Registers[startIndex+ROWS_REG] != ALL_ROWS {
 		keys := []uint32{}
 		for rowIndPointer := range (*(Registers[startIndex+ROWS_REG])).(map[uint32]bool) {
@@ -178,7 +178,7 @@ func display(startIndex int) string { // return the display string
 					res += addCell(supValToString(asValue))
 				}
 			}
-			res += "|" + "\n" + newLine + "\n" // new row
+			res += "|" + "\n" // row separator
 		}
 	} else {
 		numRows := tableAddress.GetNumRows()
@@ -191,10 +191,11 @@ func display(startIndex int) string { // return the display string
 					res += addCell(supValToString(asValue))
 				}
 			}
-			res += "|" + "\n" + newLine + "\n" // new row
+			res += "|" + "\n" // new row
 		}
 	}
-	return res // ignore the first whitespace character and the last new line char.
+	res += newLine
+	return res
 }
 
 func filter(instruction codegen.FilterOp, startIndex int) error {
@@ -433,11 +434,9 @@ func supValToString(asValue key_value.SupportedValueType) string {
 
 // TODO replace GetRedIndex is now replaced with the valid register named; put
 // them in later.
-// TODO HELLA FUCKING ERROR HANDLING
+// TODO  ERROR HANDLING
 
 func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
-	// FOR TESTING RID OF THIS LATER!!!!!~
-	// END stuff to rid later
 	var err error
 	startIndex := getToken() * packetSize
 	for _, instruction := range instructions {

@@ -373,13 +373,27 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 			addRow(instruction.(codegen.AddRowOp))
 		case "FilterOp":
 			filter(instruction.(codegen.FilterOp))
+		case "InsertOp":
+			insert(instruction.(codegen.InsertOp))
+		case "MakeTableOp":
+			makeTable(instruction.(codegen.MakeTableOp))
+		case "DeleteTableOp":
+			deleteTable(instruction.(codegen.DeleteTableOp))
+		case "UpdateTableOp":
+			updateTable(instruction.(codegen.UpdateTableOp))
+		case "DeleteRowsOp":
+			deleteRows()
+		case "DeleteColsOp":
+			deleteCols()
+		case "DisplayOp":
+			res := display()
+			clear()
+			return res, nil
 		default:
 			return "", errors.New("Bad instruction shit face")
 		}
 	}
-	res := display()
-	clear()
-	return res, nil
+	return "", nil
 }
 
 func normalToTableType(colType string) string {

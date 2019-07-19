@@ -74,5 +74,11 @@ func TestNoBad(t *testing.T) {
 		},
 		codegen.AddRowOp{uint32(0)},
 	})
+	t.Log("hello")
+	t.Log("\n" + res)
+	res, _ = ExecByteCode([]codegen.ByteCodeOp{
+		codegen.DisplayOp{},
+	})
+	t.Log("hello")
 	t.Log("\n" + res)
 }

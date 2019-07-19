@@ -400,9 +400,10 @@ func (dt *DataTable) GetColumnType(colName string) (string, error) {
 func (database *DataBase) SetEmptyTable(tableName string) error {
 	database.l.RLock() //reader lock database
 	defer database.l.RLock()
-	dt, err := database.GetTable(tableName)
-	if err != nil {
-		return err
+	dt, exist := database.db[tableName]
+
+	if !exist {
+		return errors.New("database does not exist")
 	}
 
 	dt.l.Lock() // reader lock on datatable

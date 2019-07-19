@@ -52,9 +52,9 @@ type EqCondition struct {
 /*InsertStmt -
  */
 type InsertStmt struct {
-	TableName string   `"INTO" @Ident`
-	ColNames  []string `"(" (@Ident",")+ ")"`
-	ValNames  []string `"VALUES" "(" (@Ident",")+ ")"`
+	TableName string      `"INTO" @Ident`
+	ColNames  []string    `"(" (@Ident",")+ ")"`
+	Vals      []*ColValue `"VALUES" "(" (@@",")+ ")"`
 }
 
 type UpdateStmt struct {

@@ -49,10 +49,10 @@ func TestCreateTable(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	ast := returnAST(t, "INSERT INTO tablename (col1, col2, col3,) VALUES (v1, v2, v3,)")
+	ast := returnAST(t, "INSERT INTO tablename (col1, col2, col3,) VALUES (1, 2, 3,)")
 	assert.Equal(t, "tablename", ast.Insert.TableName)
 	assert.Equal(t, "col1", ast.Insert.ColNames[0])
-	assert.Equal(t, "v1", ast.Insert.ValNames[0])
+	assert.Equal(t, 1, *ast.Insert.Vals[0].Int)
 }
 
 func TestUpdate(t *testing.T) {

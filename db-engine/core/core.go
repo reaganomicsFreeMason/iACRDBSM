@@ -1,4 +1,4 @@
-package cores
+package core
 
 import (
 	"iACRDBSM/db-engine/codegen"

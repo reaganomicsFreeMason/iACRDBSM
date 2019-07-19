@@ -74,7 +74,12 @@ func visitCreateTable(stmt ast.CreateTableStmt) {
 func visitInsert(stmt ast.InsertStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
-	insns = append(insns, InsertOp{stmt.ColNames, stmt.ValNames})
+	valNames := make([]string, 0, bigcap)
+	for _, val := range stmt.Vals {
+		valStr := castValToString(val)
+		valNames = append(valNames, valStr)
+	}
+	insns = append(insns, InsertOp{stmt.ColNames, valNames})
 }
 
 func visitUpdate(stmt ast.UpdateStmt) {

@@ -44,7 +44,7 @@ func TestMakeTable(t *testing.T) {
 }
 
 func TestInsert(t *testing.T) {
-	PrintInsns(t, "INSERT INTO t1 (col1, col2, col3,) VALUES (v1, v2, v3,)")
+	PrintInsns(t, "INSERT INTO t1 (col1, col2, col3,) VALUES (1, 2, 3,)")
 }
 
 func TestUpdate(t *testing.T) {
@@ -54,7 +54,7 @@ func TestUpdate(t *testing.T) {
 func TestQuerySeq(t *testing.T) {
 	PrintInsns(t, "CREATE TABLE tablename (c1 string,)")
 	t.Log("\n")
-	PrintInsns(t, "INSERT INTO tablename (c1,) VALUES (hello,)")
+	PrintInsns(t, "INSERT INTO tablename (c1,) VALUES (\"hello\",)")
 	t.Log("\n")
 	PrintInsns(t, "SELECT c1, FROM tablename")
 }

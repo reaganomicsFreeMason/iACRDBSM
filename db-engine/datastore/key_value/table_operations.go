@@ -384,7 +384,7 @@ func (dt *DataTable) GetOrderedColumn(colName string) ([]SupportedValueType, err
 
 // TODO: this doesn't work because of weird typing things
 // GetColumnType returns the type of the column specified
-func (dt DataTable) GetColumnType(colName string) (string, error) {
+func (dt *DataTable) GetColumnType(colName string) (string, error) {
 	dt.l.RLock() // reader lock on datatable
 	defer dt.l.RUnlock()
 
@@ -394,4 +394,33 @@ func (dt DataTable) GetColumnType(colName string) (string, error) {
 		return "", errors.New("no column there")
 	}
 	return column.Type, nil
+}
+
+// SetEmptyTable deletes all user made entries to the table, but maintains table name
+func (database *DataBase) SetEmptyTable(tableName string) error {
+	database.l.RLock() //reader lock database
+	defer database.l.RLock()
+	dt, err := database.GetTable(tableName)
+	if err != nil {
+		return err
+	}
+
+	dt.l.Lock() // reader lock on datatable
+	defer dt.l.Unlock()
+
+	dt.deletedRows = IntegerSet{}
+	dt.numCol = 0
+	dt.rows = []Row{}
+
+	for key, val := range dt.columnsMap {
+		i := val.Index
+		typeName := val.Type
+		dt.columnsMap[key] = ColumnInfoMap{
+			i,
+			typeName,
+			make(map[SupportedValueType]ValueToRowMap, initialInfoValueSize),
+		}
+	}
+
+	return nil
 }

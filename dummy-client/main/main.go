@@ -9,7 +9,7 @@ import (
 
 const (
 	// TODO: These will be the server network information eventually
-	connHost = "205.189.0.129"
+	connHost = "localhost"
 	connPort = "3333"
 	connType = "tcp"
 )

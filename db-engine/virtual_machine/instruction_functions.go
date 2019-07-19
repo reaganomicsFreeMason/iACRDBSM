@@ -217,6 +217,11 @@ func filter(instruction codegen.FilterOp, startIndex int) error {
 		for index := range goodIndices {
 			addRow(codegen.AddRowOp{uint32(index)}, startIndex)
 		}
+		if *(Registers[startIndex+ROWS_REG]) == ALL_ROWS {
+			var asInter interface{}
+			asInter = map[uint32]bool{}
+			Registers[startIndex+ROWS_REG] = &asInter
+		}
 		return nil
 	}
 

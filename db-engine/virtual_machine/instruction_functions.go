@@ -178,7 +178,7 @@ func display(startIndex int) string { // return the display string
 					res += addCell(supValToString(asValue))
 				}
 			}
-			res += "|" + "\n" + newLine + "\n" // row separator
+			res += "|" + "\n" // row separator
 		}
 	} else {
 		numRows := tableAddress.GetNumRows()
@@ -191,9 +191,10 @@ func display(startIndex int) string { // return the display string
 					res += addCell(supValToString(asValue))
 				}
 			}
-			res += "|" + "\n" + newLine + "\n" // new row
+			res += "|" + "\n" // new row
 		}
 	}
+	res += newLine
 	return res
 }
 

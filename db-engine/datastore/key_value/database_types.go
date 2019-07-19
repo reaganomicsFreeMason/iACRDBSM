@@ -47,3 +47,8 @@ func NewDataBase() *DataBase {
 	res.l = sync.RWMutex{}
 	return &res
 }
+
+func (db *DataBase) SetPointer(name string, tablePointer *DataTable) error {
+	db.db[name] = tablePointer
+	return nil
+}

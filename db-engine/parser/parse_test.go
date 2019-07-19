@@ -24,13 +24,11 @@ func setup() {
 
 func TestSelect(t *testing.T) {
 	InitParser()
-	ast := &SqlStmt{}
-	err := SQLParser.ParseString("SELECT col1, col2, col3, FROM t1, t2, t3, WHERE col1 = v1, col2 = v2, col3 = v3,", ast)
-	assert.NoError(t, err, "Parse Error")
+	ast := returnAST(t, "SELECT col1, col2, col3, FROM t1, t2, t3, WHERE col1 = \"v1\", col2 = \"v2\", col3 = 2,")
 	// Print column names
 	assert.Equal(t, "t1", ast.Select.TableNames[0])
 	assert.Equal(t, "col2", ast.Select.ColNames[1])
-	assert.Equal(t, "v3", ast.Select.Conditions[2].ValName)
+	assert.Equal(t, 2, *ast.Select.Conditions[2].ColValue.Int)
 }
 
 func returnAST(t *testing.T, sqlStmt string) *SqlStmt {
@@ -62,8 +60,15 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	ast := returnAST(t, "DELETE FROM t WHERE c = v,")
+	ast := returnAST(t, "DELETE FROM t WHERE c = 2,")
 	assert.Equal(t, "t", ast.Delete.TableName)
 	assert.Equal(t, "c", ast.Delete.Conditions[0].ColName)
-	assert.Equal(t, "v", ast.Delete.Conditions[0].ValName)
+	assert.Equal(t, 2, *ast.Delete.Conditions[0].ColValue.Int)
+}
+
+func TestAlterTable(t *testing.T) {
+	ast := returnAST(t, "ALTER TABLE t ADD c int")
+	assert.Equal(t, "t", ast.AlterTable.TableName)
+	assert.Equal(t, "c", ast.AlterTable.ColName)
+	assert.Equal(t, "int", ast.AlterTable.ColType)
 }

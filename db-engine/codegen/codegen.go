@@ -28,6 +28,8 @@ func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
 		visitUpdate(*stmt.Update)
 	} else if stmt.Delete != nil {
 		visitDelete(*stmt.Delete)
+	} else if stmt.AlterTable != nil {
+		visitAlterTable(*stmt.AlterTable)
 	}
 	return insns, nil
 }
@@ -93,6 +95,14 @@ func visitDelete(stmt parser.DeleteStmt) {
 
 	// Now delete the remaining rows in the working set
 	insns = append(insns, DeleteRowsOp{})
+}
+
+func visitAlterTable(stmt parser.AlterTableStmt) {
+	tableName := stmt.TableName
+	insns = append(insns, GetTableOp{tableName})
+	colName := stmt.ColName
+	colType := stmt.ColType
+	insns = append(insns, InsertColumnOp{colName, colType})
 }
 
 func visitConditions(condList []*parser.EqCondition) {

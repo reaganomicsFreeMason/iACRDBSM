@@ -16,6 +16,7 @@ type SqlStmt struct {
 	Insert      *InsertStmt      `| "INSERT" @@`
 	Update      *UpdateStmt      `| "UPDATE" @@`
 	Delete      *DeleteStmt      `| "DELETE" @@`
+	AlterTable  *AlterTableStmt  `| "ALTER" @@`
 }
 
 /*CreateTableStmt -
@@ -75,6 +76,12 @@ type ColSetVal struct {
 type DeleteStmt struct {
 	TableName  string         `"FROM" @Ident`
 	Conditions []*EqCondition `"WHERE" (@@",")+`
+}
+
+type AlterTableStmt struct {
+	TableName string `"TABLE" @Ident`
+	ColName   string `"ADD" @Ident`
+	ColType   string `@Ident`
 }
 
 //////////////////////////////END OF GRAMMAR/////////////////////////////

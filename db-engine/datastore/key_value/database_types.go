@@ -15,7 +15,7 @@ type IntegerSet map[uint64]bool
 type ValueToRowMap IntegerSet
 
 // Row represents rows
-type Row []interface{}
+type Row []SupportedValueType
 
 // ColumnInfoMap is a struct that holds information about a single column.
 type ColumnInfoMap struct {

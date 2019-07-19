@@ -256,7 +256,7 @@ func (dt *DataTable) GetColumn(colName string) (*ColumnInfoMap, error) {
 
 }
 
-// GetRow gets a column from datatable dt
+// GetRow gets a row from datatable dt
 func (dt *DataTable) GetRow(rowIndex uint64) (Row, error) {
 	dt.l.RLock() // reader lock on datatable
 	defer dt.l.RUnlock()
@@ -271,7 +271,10 @@ func (dt *DataTable) GetRow(rowIndex uint64) (Row, error) {
 		if colName == "" {
 			continue
 		} else {
-			res = append(res, dt.rows[rowIndex][i])
+			row := dt.rows[rowIndex][i]
+			//TODO(lgong) typing here
+			rowcopy := SupportedValueTypeImpl{row.GetName(), row.GetValue()}
+			res = append(res, rowcopy)
 		}
 	}
 	return res, nil

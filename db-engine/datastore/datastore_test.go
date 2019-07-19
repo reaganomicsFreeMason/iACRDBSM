@@ -4,6 +4,8 @@ import (
 	"iACRDBSM/db-engine/datastore/key_value"
 	"testing"
 
+	"sync"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -159,5 +161,56 @@ func TestDeleteColumnSingleThread(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, dt.GetAllColumnNames(), []string{"Sanjit2", "Sanjit3"})
+
+}
+
+func TestMultipleThreadsDataTableSimple(t *testing.T) {
+	testDB := key_value.NewDataBase()
+	testDB.NewTable(
+		"LongLiveSanjit",
+		[]string{"Sanjit1", "Sanjit2", "Sanjit3", "LindaGong"},
+		[]string{"Supported-Value-Type.int", "Supported-Value-Type.float", "Supported-Value-Type.string", "Supported-Value-Type.int"},
+	)
+	dt, _ := testDB.GetTable("LongLiveSanjit")
+
+	isDone := false
+	l := sync.Mutex{}
+	cond := sync.NewCond(&l)
+
+	go func() {
+		cond.L.Lock()
+		defer cond.Signal()
+		dt.PutRow(key_value.Row{
+			key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.int", Value: 1},
+			key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.float", Value: 1.3},
+			key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.string", Value: "sanjawanja"},
+			key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.int", Value: 2},
+		})
+		isDone = true
+		cond.L.Unlock()
+	}()
+
+	dt.PutRow(key_value.Row{
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.int", Value: 2},
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.float", Value: 3},
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.string", Value: "helo"},
+		key_value.SupportedValueTypeImpl{Name: "Supported-Value-Type.int", Value: 3},
+	})
+
+	cond.L.Lock()
+	for !isDone {
+		t.Log(isDone)
+		cond.Wait()
+	}
+	cond.L.Unlock()
+
+	assert.Equal(t, 2, dt.GetNumRows())
+
+	row0, err := dt.GetRow(0)
+	assert.NoError(t, err)
+	t.Log(row0)
+	row1, err := dt.GetRow(1)
+	assert.NoError(t, err)
+	t.Log(row1)
 
 }

@@ -339,6 +339,7 @@ func (dt *DataTable) GetAllRowNames(goodIndices map[uint32]bool) string {
 		ret += "\n" // new row
 	}
 	return ret
+}
 
 // GetNumCols Returns the number of rows
 func (dt *DataTable) GetNumCols() int {

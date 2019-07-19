@@ -149,5 +149,3 @@ type ClearOp struct{}
 func (o ClearOp) GetOpName() string {
 	return "ClearOp"
 }
-
-// ALTER TABLE TO DO

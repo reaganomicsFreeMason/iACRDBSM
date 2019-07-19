@@ -357,6 +357,12 @@ func (dt *DataTable) GetNumRows() int {
 	return (len(dt.rows) - len(dt.deletedRows))
 }
 
+// GetNumRows Returns the number of rows
+func (dt *DataTable) GetRows() []Row {
+
+	return dt.rows
+}
+
 // GetOrderedColumn returns an array of supported value types of the column in order
 func (dt *DataTable) GetOrderedColumn(colName string) ([]SupportedValueType, error) {
 

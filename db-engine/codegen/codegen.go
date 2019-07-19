@@ -35,6 +35,7 @@ func GenByteCode(stmt *ast.SqlStmt) ([]ByteCodeOp, error) {
 	} else if stmt.TruncateTable != nil {
 		visitTruncateTable(*stmt.TruncateTable)
 	}
+	insns = append(insns, ClearOp{})
 	return insns, nil
 }
 
@@ -126,7 +127,7 @@ func visitDropColumn(stmt ast.DropColumnStmt) {
 func visitDropTable(stmt ast.DropTableStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
-	insns = append(insns, DeleteTableOp{})
+	insns = append(insns, DeleteTableOp{tableName})
 }
 
 func visitTruncateTable(stmt ast.TruncateTableStmt) {

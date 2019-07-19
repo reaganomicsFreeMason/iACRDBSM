@@ -25,7 +25,7 @@ func (database *DataBase) NewTable(
 	defer database.l.Unlock()
 
 	if _, found := (database.db)[tableName]; found {
-		return errors.New("Db already exists, dumbass")
+		return errors.New("db already exists")
 	}
 	dataTable, err := makeDataTable(columnNames, columnTypes)
 	if err != nil {
@@ -52,6 +52,7 @@ func makeDataTable(columnNames, columnTypes []string) (*DataTable, error) {
 		}
 	}
 	rows := make([]Row, 0, initNumRows)
+
 	return &DataTable{
 		columnMap,
 		columnNames,
@@ -87,8 +88,8 @@ func (database *DataBase) GetTable(tableName string) (*DataTable, error) {
 
 	table, found := (database.db)[tableName]
 
-	if found {
-		return nil, errors.New("table not here")
+	if !found {
+		return nil, errors.New("table does not exist")
 	}
 	return table, nil
 

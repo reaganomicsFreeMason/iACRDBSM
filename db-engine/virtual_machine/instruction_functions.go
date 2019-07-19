@@ -6,8 +6,10 @@ import ( // fucking shit go is dumb
 	"fmt"
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
+	"math"
 	"sort"
 	"strconv"
+	"strings"
 	"sync"
 	// "github.com/olekukonko/tablewriter"
 )
@@ -114,15 +116,33 @@ func clear(startIndex int) error {
 	return nil
 }
 
+func separator(length int) string {
+	ret := "+"
+	for i := 0; i < length; i++ {
+		ret += strings.Repeat(string("-"), 15) + "+"
+	}
+	return ret
+}
+
+func addCell(content string) string {
+	size := len(content)
+	border := 15 - size
+	if border > 0 {
+		left := int(math.Ceil(float64(border / 2)))
+		right := border - left
+		return "|" + strings.Repeat(string(" "), left) + content + strings.Repeat(string(" "), right)
+	}
+	//TODO: Check if len(content) < 15 & figure out what to do
+	return "|" + content
+}
+
 func display(startIndex int) string { // return the display string
 	// assume, for now, everything is valid in the registers
 	res := ""
+	retTableLen := 0
 	table := (*(Registers[startIndex+TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
 	columnNames := tableAddress.GetAllColumnNames()
-	columnHeader := []string{}
-	data := [][]string{}
-	// mytable := tablewriter.NewWriter(os.Stdout)
 
 	setOfQueriedColumns := map[string]bool{}
 	goodIndices := map[uint32]bool{}
@@ -134,11 +154,12 @@ func display(startIndex int) string { // return the display string
 	for i, columnName := range columnNames {
 		if _, found := setOfQueriedColumns[columnName]; found {
 			goodIndices[uint32(i)] = true
-			res += " " + columnName + " "
-			// columnHeader = append(columnHeader, tablewriter.Title(columnName))
+			retTableLen++
+			res += addCell(columnName)
 		}
 	}
-	res += "\n" // new line as a conclusion
+	newLine := separator(retTableLen)
+	res += "|" + "\n" + newLine + "\n" // new line as a conclusion
 
 	// TODO: error handle THIS SHIT THIS IS NASTY
 	if *Registers[startIndex+ROWS_REG] != ALL_ROWS {
@@ -150,45 +171,30 @@ func display(startIndex int) string { // return the display string
 			return keys[i] < keys[j]
 		})
 		for _, rowIndPointer := range keys {
-			retRow := []string{}
 			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
-					res += " " + supValToString(asValue) + " "
-					retRow = append(retRow, supValToString(asValue))
+					res += addCell(supValToString(asValue))
 				}
 			}
-			res += "\n" // new row
-			data = append(data, retRow)
+			res += "|" + "\n" + newLine + "\n" // new row
 		}
 	} else {
 		numRows := tableAddress.GetNumRows()
 		for i := 0; i < numRows; i++ {
 			rowIndPointer := &i
 			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
-			retRow := []string{}
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
-					res += " " + supValToString(asValue) + " "
-					retRow = append(retRow, supValToString(asValue))
+					res += addCell(supValToString(asValue))
 				}
 			}
-			res += "\n" // new row
-			data = append(data, retRow)
+			res += "|" + "\n" + newLine + "\n" // new row
 		}
 	}
-	if len(columnHeader) > 0 {
-		if len(data) > 0 && len(data[0]) > 0 {
-			// mytable.SetHeader(columnHeader)
-		} else {
-			data = append(data, columnHeader)
-		}
-		// mytable.AppendBulk(data)
-		// mytable.Render()
-	}
-	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
+	return res // ignore the first whitespace character and the last new line char.
 }
 
 func filter(instruction codegen.FilterOp, startIndex int) error {

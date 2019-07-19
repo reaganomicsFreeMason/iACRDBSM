@@ -8,10 +8,10 @@ is the virtual machine. The opcodes operate on registers.
 type Register *interface{}
 
 const (
-	R1 = 1
-	R2 = 2
-	R3 = 3
-	R4 = 4
+	R1 = 0 // ignore stupid naming
+	R2 = 1
+	R3 = 2
+	R4 = 3
 	R5 = 5 // Pointer to table
 	R6 = 6 // List of column names we want in query result table
 	R7 = 7 // List of row indexes we want in query result table

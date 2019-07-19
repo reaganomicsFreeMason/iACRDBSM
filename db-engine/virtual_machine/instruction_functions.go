@@ -80,7 +80,7 @@ func addColumn(instruction codegen.AddColumnOp, startIndex int) error {
 }
 
 func addAllColumns(instruction codegen.AddAllColumnsOp, startIndex int) error {
-	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	table := (*(Registers[startIndex+TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
 	colNames := tableAddress.GetAllColumnNames()
 	for _, colName := range colNames {
@@ -522,6 +522,7 @@ func getToken() int {
 		toReturn = key
 		break
 	}
+	fmt.Println("GOT KEY " + strconv.FormatInt(int64(toReturn), 10))
 	delete(packetIndexSet, toReturn)
 	cond.L.Unlock()
 	return toReturn
@@ -529,6 +530,7 @@ func getToken() int {
 
 func putToken(startIndex int) { // error will panic for us thanks to sync package
 	cond.L.Lock()
+	fmt.Println("PUTTING KEY " + strconv.FormatInt(int64(startIndex), 10))
 	if _, found := packetIndexSet[startIndex]; found {
 		panic(errors.New("Inconsistent packet index set state!!!"))
 	}

@@ -106,7 +106,6 @@ func clear() error {
 	return nil
 }
 
-// TODO format so it looks better
 func display() string { // return the display string
 	// assume, for now, everything is valid in the registers
 	res := ""
@@ -143,41 +142,43 @@ func display() string { // return the display string
 			return keys[i] < keys[j]
 		})
 		for _, rowIndPointer := range keys {
+			retRow := []string{}
 			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
 					res += " " + supValToString(asValue) + " "
+					retRow = append(retRow, supValToString(asValue))
 				}
 			}
 			res += "\n" // new row
+			data = append(data, retRow)
 		}
 	} else {
 		for i := range tableAddress.Rows {
 			rowIndPointer := &i
 			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+			retRow := []string{}
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
 					res += " " + supValToString(asValue) + " "
+					retRow = append(retRow, supValToString(asValue))
 				}
 			}
 			res += "\n" // new row
+			data = append(data, retRow)
 		}
 	}
-	if len(data) > 0 {
-		mytable.SetHeader(columnHeader)
+	if len(columnHeader) > 0 {
+		if len(data) > 0 && len(data[0]) > 0 {
+			mytable.SetHeader(columnHeader)
+		} else {
+			data = append(data, columnHeader)
+		}
 		mytable.AppendBulk(data)
 		mytable.Render()
-	} else {
-		if len(columnHeader) > 0 {
-			content := [][]string{{}}
-			content[0] = append(content[0], columnHeader...)
-			mytable.AppendBulk(content)
-			mytable.Render()
-		}
 	}
-
 	return res[1 : len(res)-1] // ignore the first whitespace character and the last new line char.
 }
 

@@ -25,11 +25,17 @@ type CreateTableStmt struct {
 	ColTypeInfos []*ColTypeInfo `"(" (@@",")+ ")"`
 }
 
-/*ColInfo -
+/*ColTypeInfo -
  */
 type ColTypeInfo struct {
 	ColName string `@Ident`
 	ColType string `@Ident`
+}
+
+type ColValue struct {
+	String *string  `  @String`
+	Int    *int     `| @Int`
+	Float  *float64 `| @Float`
 }
 
 /*SelectStmt -
@@ -62,8 +68,8 @@ type UpdateStmt struct {
 }
 
 type ColSetVal struct {
-	ColName string `@Ident "="`
-	ColVal  string `@Ident`
+	ColName string    `@Ident "="`
+	ColVal  *ColValue `@@`
 }
 
 //////////////////////////////END OF GRAMMAR/////////////////////////////

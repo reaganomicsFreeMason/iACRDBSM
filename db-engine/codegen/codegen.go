@@ -1,7 +1,9 @@
 package codegen
 
 import (
+	"fmt"
 	"iACRDBSM/db-engine/parser"
+	"strconv"
 )
 
 const bigcap = 500
@@ -79,7 +81,24 @@ func visitUpdate(stmt parser.UpdateStmt) {
 	// Then generate update table instructions
 	for _, colSetVal := range stmt.ColSetVals {
 		colName := colSetVal.ColName
-		colVal := colSetVal.ColVal
+		colValStruct := colSetVal.ColVal
+		colVal := castValToString(colValStruct)
+
 		insns = append(insns, UpdateTableOp{colName, colVal})
 	}
+}
+
+func castValToString(colValStruct *parser.ColValue) string {
+	// This is silly, but the virtual machine
+	// expects all values to be strings, so we cast our
+	// value back to a string.
+	var colVal string
+	if colValStruct.String != nil {
+		colVal = *colValStruct.String
+	} else if colValStruct.Int != nil {
+		colVal = strconv.Itoa(*colValStruct.Int)
+	} else if colValStruct.Float != nil {
+		colVal = fmt.Sprintf("%f", *colValStruct.Float)
+	}
+	return colVal
 }

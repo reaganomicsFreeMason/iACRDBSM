@@ -28,22 +28,9 @@ func TestSelect(t *testing.T) {
 	err := SQLParser.ParseString("SELECT col1, col2, col3, FROM t1, t2, t3, WHERE col1 = v1, col2 = v2, col3 = v3,", ast)
 	assert.NoError(t, err, "Parse Error")
 	// Print column names
-	for _, col := range ast.Select.ColNames {
-		fmt.Println(col)
-		t.Log(col)
-	}
-
-	// Print table names
-	for _, tbl := range ast.Select.TableNames {
-		fmt.Println(tbl)
-		t.Log(tbl)
-	}
-
-	// Print where conditions
-	for _, cond := range ast.Select.Conditions {
-		fmt.Println(cond.ColName + "=" + cond.ValName)
-		t.Log(cond)
-	}
+	assert.Equal(t, "t1", ast.Select.TableNames[0])
+	assert.Equal(t, "col2", ast.Select.ColNames[1])
+	assert.Equal(t, "v3", ast.Select.Conditions[2].ValName)
 }
 
 func returnAST(t *testing.T, sqlStmt string) *SqlStmt {
@@ -72,4 +59,11 @@ func TestInsert(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	ast := returnAST(t, "UPDATE tablename SET col1 = 2, col2 = 3, col3 = 4, WHERE col1 = 3,")
 	assert.Equal(t, "tablename", ast.Update.TableName)
+}
+
+func TestDelete(t *testing.T) {
+	ast := returnAST(t, "DELETE FROM t WHERE c = v,")
+	assert.Equal(t, "t", ast.Delete.TableName)
+	assert.Equal(t, "c", ast.Delete.Conditions[0].ColName)
+	assert.Equal(t, "v", ast.Delete.Conditions[0].ValName)
 }

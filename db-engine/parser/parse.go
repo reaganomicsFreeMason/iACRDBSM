@@ -15,7 +15,7 @@ type SqlStmt struct {
 	Select      *SelectStmt      `| "SELECT" @@`
 	Insert      *InsertStmt      `| "INSERT" @@`
 	Update      *UpdateStmt      `| "UPDATE" @@`
-	// Delete      DeleteStmt       `| "DELETE" @@`
+	Delete      *DeleteStmt      `| "DELETE" @@`
 }
 
 /*CreateTableStmt -
@@ -25,11 +25,17 @@ type CreateTableStmt struct {
 	ColTypeInfos []*ColTypeInfo `"(" (@@",")+ ")"`
 }
 
-/*ColInfo -
+/*ColTypeInfo -
  */
 type ColTypeInfo struct {
 	ColName string `@Ident`
 	ColType string `@Ident`
+}
+
+type ColValue struct {
+	String *string  `  @String`
+	Int    *int     `| @Int`
+	Float  *float64 `| @Float`
 }
 
 /*SelectStmt -
@@ -43,8 +49,8 @@ type SelectStmt struct {
 /*EqCondition -
  */
 type EqCondition struct {
-	ColName string `@Ident "="`
-	ValName string `@Ident`
+	ColName  string    `@Ident "="`
+	ColValue *ColValue `@@`
 }
 
 /*InsertStmt -
@@ -62,8 +68,13 @@ type UpdateStmt struct {
 }
 
 type ColSetVal struct {
-	ColName string `@Ident "="`
-	ColVal  string `@Ident`
+	ColName string    `@Ident "="`
+	ColVal  *ColValue `@@`
+}
+
+type DeleteStmt struct {
+	TableName  string         `"FROM" @Ident`
+	Conditions []*EqCondition `"WHERE" (@@",")+`
 }
 
 //////////////////////////////END OF GRAMMAR/////////////////////////////

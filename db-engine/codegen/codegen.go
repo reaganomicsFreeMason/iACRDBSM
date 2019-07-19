@@ -1,7 +1,9 @@
 package codegen
 
 import (
+	"fmt"
 	"iACRDBSM/db-engine/parser"
+	"strconv"
 )
 
 const bigcap = 500
@@ -24,6 +26,8 @@ func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
 		visitInsert(*stmt.Insert)
 	} else if stmt.Update != nil {
 		visitUpdate(*stmt.Update)
+	} else if stmt.Delete != nil {
+		visitDelete(*stmt.Delete)
 	}
 	return insns, nil
 }
@@ -38,11 +42,7 @@ func visitSelect(stmt parser.SelectStmt) {
 		insns = append(insns, AddColumnOp{colName})
 	}
 	// Generate insns for conditions in WHERE clause
-	for _, cond := range stmt.Conditions {
-		colName := cond.ColName
-		valName := cond.ValName
-		insns = append(insns, FilterOp{colName, valName})
-	}
+	visitConditions(stmt.Conditions)
 
 	insns = append(insns, DisplayOp{})
 }
@@ -70,16 +70,51 @@ func visitUpdate(stmt parser.UpdateStmt) {
 	insns = append(insns, GetTableOp{tableName})
 
 	// Want to filter out rows we dont first
-	for _, cond := range stmt.Conditions {
-		colName := cond.ColName
-		valName := cond.ValName
-		insns = append(insns, FilterOp{colName, valName})
-	}
+	visitConditions(stmt.Conditions)
 
 	// Then generate update table instructions
 	for _, colSetVal := range stmt.ColSetVals {
 		colName := colSetVal.ColName
 		colVal := colSetVal.ColVal
-		insns = append(insns, UpdateTableOp{colName, colVal})
+		colValStr := castValToString(colVal)
+
+		insns = append(insns, UpdateTableOp{colName, colValStr})
 	}
+}
+
+func visitDelete(stmt parser.DeleteStmt) {
+	tableName := stmt.TableName
+	insns = append(insns, GetTableOp{tableName})
+
+	// Want to filter out the rows from the working set
+	// by the conditions
+	// Want to filter out rows we dont first
+	visitConditions(stmt.Conditions)
+
+	// Now delete the remaining rows in the working set
+	insns = append(insns, DeleteRowsOp{})
+}
+
+func visitConditions(condList []*parser.EqCondition) {
+	for _, cond := range condList {
+		colName := cond.ColName
+		colVal := cond.ColValue
+		colValStr := castValToString(colVal)
+		insns = append(insns, FilterOp{colName, colValStr})
+	}
+}
+
+func castValToString(colValStruct *parser.ColValue) string {
+	// This is silly, but the virtual machine
+	// expects all values to be strings, so we cast our
+	// value back to a string.
+	var colVal string
+	if colValStruct.String != nil {
+		colVal = *colValStruct.String
+	} else if colValStruct.Int != nil {
+		colVal = strconv.Itoa(*colValStruct.Int)
+	} else if colValStruct.Float != nil {
+		colVal = fmt.Sprintf("%f", *colValStruct.Float)
+	}
+	return colVal
 }

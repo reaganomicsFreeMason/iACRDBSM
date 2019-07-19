@@ -161,8 +161,10 @@ func filter(instruction codegen.FilterOp) error {
 
 	colName := instruction.ColName
 	valueName := instruction.ValName
-	val := makeSupportedVal(colName, valueName)
-
+	val, err := makeSupportedVal(colName, valueName)
+	if err != nil {
+		return err
+	}
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
@@ -209,7 +211,7 @@ func insert(instruction codegen.InsertOp) error {
 		} else if val, found := colNameToValue[tableColName]; !found {
 			continue
 		} else {
-			rowToInsert[i] = makeSupportedVal(tableColName, val)
+			rowToInsert[i], _ = makeSupportedVal(tableColName, val)
 		}
 	}
 	// fmt.Println("THISROW", rowToInsert)
@@ -292,7 +294,10 @@ func updateTable(instruction codegen.UpdateTableOp) error {
 	colNameToChange := instruction.ColName
 	newVal := instruction.NewVal
 	// UpdateRow(rowIndex uint64, colName string, newValue SupportedValueType)
-	approproVal := makeSupportedVal(colNameToChange, newVal)
+	approproVal, err := makeSupportedVal(colNameToChange, newVal)
+	if err != nil {
+		return err
+	}
 
 	setOfPointers := *(Registers[ROWS_REG])
 	for indAddress := range setOfPointers.(map[uint32]bool) {
@@ -315,11 +320,14 @@ func insertColumn(instruction codegen.InsertColumnOp) error {
 
 }
 
-func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
+func makeSupportedVal(colName, valName string) (key_value.SupportedValueType, error) {
 	// fmt.Println(colName, valName)
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	colType := tableAddress.columnNames[colName].Type //FIX
+	colType, err := tableAddress.GetColumnType(colName)
+	if err != nil {
+		return nil, err
+	}
 	// fmt.Println(colType)
 	var asInterface interface{}
 	switch colType {
@@ -330,7 +338,7 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	case "Supported-Value-Type.string":
 		asInterface = valName
 	}
-	return key_value.SupportedValueTypeImpl{colType, asInterface}
+	return key_value.SupportedValueTypeImpl{colType, asInterface}, nil
 }
 
 // TODO replace GetRedIndex is now replaced with the valid register named; put

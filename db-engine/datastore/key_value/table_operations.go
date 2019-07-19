@@ -384,14 +384,14 @@ func (dt *DataTable) GetOrderedColumn(colName string) ([]SupportedValueType, err
 
 // TODO: this doesn't work because of weird typing things
 // GetColumnType returns the type of the column specified
-// func (dt DataTable) GetColumnType(colName string) (SupportedValueType, error) {
-// 	dt.l.RLock() // reader lock on datatable
-// 	defer dt.l.RUnlock()
+func (dt DataTable) GetColumnType(colName string) (string, error) {
+	dt.l.RLock() // reader lock on datatable
+	defer dt.l.RUnlock()
 
-// 	column, found := dt.columnsMap[colName]
+	column, found := dt.columnsMap[colName]
 
-// 	if !found {
-// 		return nil, errors.New("no column there")
-// 	}
-// 	return column.Type, nil
-// }
+	if !found {
+		return "", errors.New("no column there")
+	}
+	return column.Type, nil
+}

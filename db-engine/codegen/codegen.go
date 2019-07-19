@@ -2,7 +2,7 @@ package codegen
 
 import (
 	"fmt"
-	"iACRDBSM/db-engine/parser"
+	"iACRDBSM/db-engine/ast"
 	"strconv"
 )
 
@@ -16,7 +16,7 @@ bytecode that will be executed by the virtual
 machine to carry out the sql command. The bytecode langauge
 is defined in codegen/ops.go
 */
-func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
+func GenByteCode(stmt *ast.SqlStmt) ([]ByteCodeOp, error) {
 	insns = make([]ByteCodeOp, 0, bigcap)
 	if stmt.CreateTable != nil {
 		visitCreateTable(*stmt.CreateTable)
@@ -28,12 +28,14 @@ func GenByteCode(stmt *parser.SqlStmt) ([]ByteCodeOp, error) {
 		visitUpdate(*stmt.Update)
 	} else if stmt.Delete != nil {
 		visitDelete(*stmt.Delete)
+	} else if stmt.AlterTable != nil {
+		visitAlterTable(*stmt.AlterTable)
 	}
 	return insns, nil
 }
 
 // Compile a select statement into bytecode
-func visitSelect(stmt parser.SelectStmt) {
+func visitSelect(stmt ast.SelectStmt) {
 	tableNames := stmt.TableNames
 	// TODO: Handle joins
 	insns = append(insns, GetTableOp{tableNames[0]})
@@ -47,7 +49,7 @@ func visitSelect(stmt parser.SelectStmt) {
 	insns = append(insns, DisplayOp{})
 }
 
-func visitCreateTable(stmt parser.CreateTableStmt) {
+func visitCreateTable(stmt ast.CreateTableStmt) {
 	tableName := stmt.TableName
 	colInfos := stmt.ColTypeInfos
 	colNames := make([]string, 0, bigcap)
@@ -59,13 +61,13 @@ func visitCreateTable(stmt parser.CreateTableStmt) {
 	insns = append(insns, MakeTableOp{tableName, colNames, colTypes})
 }
 
-func visitInsert(stmt parser.InsertStmt) {
+func visitInsert(stmt ast.InsertStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
 	insns = append(insns, InsertOp{stmt.ColNames, stmt.ValNames})
 }
 
-func visitUpdate(stmt parser.UpdateStmt) {
+func visitUpdate(stmt ast.UpdateStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
 
@@ -82,7 +84,7 @@ func visitUpdate(stmt parser.UpdateStmt) {
 	}
 }
 
-func visitDelete(stmt parser.DeleteStmt) {
+func visitDelete(stmt ast.DeleteStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
 
@@ -95,7 +97,15 @@ func visitDelete(stmt parser.DeleteStmt) {
 	insns = append(insns, DeleteRowsOp{})
 }
 
-func visitConditions(condList []*parser.EqCondition) {
+func visitAlterTable(stmt ast.AlterTableStmt) {
+	tableName := stmt.TableName
+	insns = append(insns, GetTableOp{tableName})
+	colName := stmt.ColName
+	colType := stmt.ColType
+	insns = append(insns, InsertColumnOp{colName, colType})
+}
+
+func visitConditions(condList []*ast.EqCondition) {
 	for _, cond := range condList {
 		colName := cond.ColName
 		colVal := cond.ColValue
@@ -104,7 +114,7 @@ func visitConditions(condList []*parser.EqCondition) {
 	}
 }
 
-func castValToString(colValStruct *parser.ColValue) string {
+func castValToString(colValStruct *ast.ColValue) string {
 	// This is silly, but the virtual machine
 	// expects all values to be strings, so we cast our
 	// value back to a string.

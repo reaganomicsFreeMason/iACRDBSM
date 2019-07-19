@@ -62,3 +62,7 @@ func TestQuerySeq(t *testing.T) {
 func TestDelete(t *testing.T) {
 	PrintInsns(t, "DELETE FROM t WHERE c = 4,")
 }
+
+func TestAlterTable(t *testing.T) {
+	PrintInsns(t, "ALTER TABLE t ADD c int")
+}

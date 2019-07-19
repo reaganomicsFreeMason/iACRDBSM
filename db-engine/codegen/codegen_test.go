@@ -70,3 +70,11 @@ func TestAlterTableAddColumn(t *testing.T) {
 func TestAlterTableDropColumn(t *testing.T) {
 	PrintInsns(t, "ALTER TABLE t DROP COLUMN c")
 }
+
+func TestDropTable(t *testing.T) {
+	PrintInsns(t, "DROP TABLE t")
+}
+
+func TestTruncate(t *testing.T) {
+	PrintInsns(t, "TRUNCATE TABLE t")
+}

@@ -4,12 +4,14 @@ package ast
 // via the parser generator library we are using (participle)
 
 type SqlStmt struct {
-	CreateTable *CreateTableStmt `"CREATE" @@`
-	Select      *SelectStmt      `| "SELECT" @@`
-	Insert      *InsertStmt      `| "INSERT" @@`
-	Update      *UpdateStmt      `| "UPDATE" @@`
-	Delete      *DeleteStmt      `| "DELETE" @@`
-	AlterTable  *AlterTableStmt  `| "ALTER" @@`
+	CreateTable   *CreateTableStmt   `"CREATE" @@`
+	Select        *SelectStmt        `| "SELECT" @@`
+	Insert        *InsertStmt        `| "INSERT" @@`
+	Update        *UpdateStmt        `| "UPDATE" @@`
+	Delete        *DeleteStmt        `| "DELETE" @@`
+	AlterTable    *AlterTableStmt    `| "ALTER" @@`
+	DropTable     *DropTableStmt     `| "DROP" @@`
+	TruncateTable *TruncateTableStmt `| "TRUNCATE" @@`
 }
 
 /*CreateTableStmt -
@@ -87,4 +89,12 @@ type DropColumnStmt struct {
 
 type AddColumnStmt struct {
 	ColTypeInfo *ColTypeInfo `@@`
+}
+
+type DropTableStmt struct {
+	TableName string `"TABLE" @Ident`
+}
+
+type TruncateTableStmt struct {
+	TableName string `"TABLE" @Ident`
 }

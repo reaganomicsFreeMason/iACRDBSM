@@ -5,15 +5,9 @@ import (
 	"iACRDBSM/db-engine/datastore/key_value"
 	kv "iACRDBSM/db-engine/datastore/key_value"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestNoBad(t *testing.T) {
-	// examples on how to use testing suite
-	assert.Equal(t, 0, 0)
-	// assert.Equal(t, 0, 1)
-
 	theDataBase := DataBase
 	theDataBase.NewTable(
 		"LongLiveSanjitPart2",
@@ -43,23 +37,7 @@ func TestNoBad(t *testing.T) {
 		kv.SupportedValueTypeImpl{"Supported-Value-Type.int", 4},
 		kv.SupportedValueTypeImpl{"Supported-Value-Type.string", "four"},
 	})
-	// fmt.Println(R1)
-	// fmt.Println(theTable, theDataBase)
-	// res, err := ExecByteCode([]codegen.ByteCodeOp{
-	// 	codegen.GetTableOp{"LongLiveSanjitPart2"},
-	// 	codegen.AddRowOp{uint32(0)},
-	// 	codegen.AddRowOp{uint32(1)},
-	// 	codegen.AddColumnOp{"col1"},
-	// 	codegen.AddColumnOp{"col2"},
-	// 	codegen.FilterOp{"col2", "two"},
-	// 	codegen.UpdateTableOp{"col2", "three"},
-	// 	codegen.AddRowOp{uint32(0)},
-	// 	codegen.AddRowOp{uint32(1)},
-	// 	codegen.AddColumnOp{"col1"},
-	// 	codegen.AddColumnOp{"col2"},
 
-	// 	// fix repeated thing
-	// })
 	res, _ := ExecByteCode([]codegen.ByteCodeOp{
 		codegen.MakeTableOp{
 			"Potato",
@@ -81,4 +59,20 @@ func TestNoBad(t *testing.T) {
 	})
 	t.Log("hello")
 	t.Log("\n" + res)
+}
+
+func TestMultipleClientsReadOnly(t *testing.T) {
+	theDataBase := DataBase
+	theDataBase.NewTable(
+		"LongLiveSanjitPart2",
+		[]string{
+			"col1",
+			"col2",
+		},
+		[]string{
+			"Supported-Value-Type.int",
+			"Supported-Value-Type.string",
+		},
+	)
+
 }

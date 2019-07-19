@@ -41,12 +41,17 @@ func GenByteCode(stmt *ast.SqlStmt) ([]ByteCodeOp, error) {
 
 // Compile a select statement into bytecode
 func visitSelect(stmt ast.SelectStmt) {
-	tableNames := stmt.TableNames
+	tableName := stmt.TableName
 	// TODO: Handle joins
-	insns = append(insns, GetTableOp{tableNames[0]})
+	insns = append(insns, GetTableOp{tableName})
 	// Generate insns to add columns we want
-	for _, colName := range stmt.ColNames {
-		insns = append(insns, AddColumnOp{colName})
+	if len(stmt.ColNames) == 1 && stmt.ColNames[0] == "ALL" {
+		// Handle SELECT * FROM ...
+		insns = append(insns, AddAllColumnsOp{})
+	} else {
+		for _, colName := range stmt.ColNames {
+			insns = append(insns, AddColumnOp{colName})
+		}
 	}
 	// Generate insns for conditions in WHERE clause
 	visitConditions(stmt.Conditions)

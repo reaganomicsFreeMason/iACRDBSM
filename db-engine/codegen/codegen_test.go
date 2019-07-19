@@ -36,7 +36,7 @@ func PrintInsns(t *testing.T, cmdString string) {
 }
 
 func TestSelect(t *testing.T) {
-	PrintInsns(t, "SELECT c1, c2, c3, FROM t1, WHERE col1 = 3, col2 = 2,")
+	PrintInsns(t, "SELECT c1, c2, c3, FROM t1 WHERE col1 = 3, col2 = 2,")
 }
 
 func TestMakeTable(t *testing.T) {
@@ -56,7 +56,7 @@ func TestQuerySeq(t *testing.T) {
 	t.Log("\n")
 	PrintInsns(t, "INSERT INTO tablename (c1,) VALUES (hello,)")
 	t.Log("\n")
-	PrintInsns(t, "SELECT c1, FROM tablename,")
+	PrintInsns(t, "SELECT c1, FROM tablename")
 }
 
 func TestDelete(t *testing.T) {
@@ -77,4 +77,8 @@ func TestDropTable(t *testing.T) {
 
 func TestTruncate(t *testing.T) {
 	PrintInsns(t, "TRUNCATE TABLE t")
+}
+
+func TestSelectStar(t *testing.T) {
+	PrintInsns(t, "SELECT ALL, FROM t")
 }

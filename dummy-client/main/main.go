@@ -35,6 +35,8 @@ func main() {
 		message, err := bufio.NewReader(conn).ReadString('\r')
 		if err != nil {
 			fmt.Println("Issue reading server response " + err.Error())
+		} else if message == "closed"+"\r" {
+			os.Exit(0)
 		} else {
 			fmt.Print(message)
 		}

@@ -37,14 +37,14 @@ func RunServer() {
 			fmt.Println("Error accepting incoming connection:", err.Error())
 			os.Exit(1)
 		}
-
-		go handleClient(conn)
+		quit := make(chan int)
+		go handleClient(conn, quit)
 	}
 }
 
 // TODO: Properly handle client killing process, so we don't
 // have to restart server every time.
-func handleClient(conn net.Conn) {
+func handleClient(conn net.Conn, c chan int) {
 	for {
 		// Read input string from client
 		sqlstr, err := readInputFromCon(conn)
@@ -52,6 +52,9 @@ func handleClient(conn net.Conn) {
 			// Error reading string from socket
 			fmt.Fprintf(conn, err.Error())
 		} else {
+			if sqlstr == "exit\n" {
+				break
+			}
 			// Process SQL string
 			result, err := core.ProcessSQLString(sqlstr)
 			if err != nil {
@@ -65,6 +68,8 @@ func handleClient(conn net.Conn) {
 			}
 		}
 	}
+	fmt.Fprintf(conn, "closed"+"\r")
+	c <- 3
 }
 
 func readInputFromCon(conn net.Conn) (string, error) {

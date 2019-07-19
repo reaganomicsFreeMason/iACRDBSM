@@ -295,6 +295,22 @@ func (dt *DataTable) GetAllColumnNames() []string {
 	return res
 }
 
+// GetNumCols Returns the number of rows
+func (dt *DataTable) GetNumCols() int {
+	dt.l.RLock()
+	defer dt.l.RUnlock()
+
+	return len(dt.columnsMap)
+}
+
+// GetNumRows Returns the number of rows
+func (dt *DataTable) GetNumRows() int {
+	dt.l.RLock()
+	defer dt.l.RUnlock()
+
+	return (len(dt.rows) - len(dt.deletedRows))
+}
+
 // TODO: this doesn't work because of weird typing things
 // GetColumnType returns the type of the column specified
 // func (dt DataTable) GetColumnType(colName string) (SupportedValueType, error) {

@@ -25,9 +25,9 @@ func setup() {
 
 func TestSelect(t *testing.T) {
 	InitParser()
-	ast := returnAST(t, "SELECT col1, col2, col3, FROM t1, t2, t3, WHERE col1 = \"v1\", col2 = \"v2\", col3 = 2,")
+	ast := returnAST(t, "SELECT col1, col2, col3, FROM t1 WHERE col1 = \"v1\", col2 = \"v2\", col3 = 2,")
 	// Print column names
-	assert.Equal(t, "t1", ast.Select.TableNames[0])
+	assert.Equal(t, "t1", ast.Select.TableName)
 	assert.Equal(t, "col2", ast.Select.ColNames[1])
 	assert.Equal(t, 2, *ast.Select.Conditions[2].ColValue.Int)
 }
@@ -88,4 +88,9 @@ func TestDropTableOp(t *testing.T) {
 func TestTruncateTableOp(t *testing.T) {
 	ast := returnAST(t, "TRUNCATE TABLE t")
 	assert.Equal(t, "t", ast.TruncateTable.TableName)
+}
+
+func TestSelectStarOp(t *testing.T) {
+	ast := returnAST(t, "SELECT ALL, FROM t")
+	assert.Equal(t, "ALL", ast.Select.ColNames[0])
 }

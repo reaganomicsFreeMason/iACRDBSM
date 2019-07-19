@@ -140,6 +140,13 @@ type InsertColumnOp struct {
 	ColType string //int, float, or string
 }
 
+type AddAllColumnsOp struct {
+}
+
+func (o AddAllColumnsOp) GetOpName() string {
+	return "AddAllColumnsOp"
+}
+
 func (o InsertColumnOp) GetOpName() string {
 	return "InsertColumnOp"
 }

@@ -84,6 +84,16 @@ func addColumn(instruction codegen.AddColumnOp) error {
 	return nil
 }
 
+func addAllColumns(instruction codegen.AddAllColumnsOp) error {
+	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
+	tableAddress := &table
+	colNames := tableAddress.GetAllColumnNames()
+	for _, colName := range colNames {
+		addColumn(codegen.AddColumnOp{colName})
+	}
+	return nil
+}
+
 func addRow(instruction codegen.AddRowOp) error {
 	rowInd := instruction.Idx
 	if Registers[ROWS_REG] == nil {
@@ -435,6 +445,12 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 		switch instName {
 		case "GetTableOp":
 			err := getTable(instruction.(codegen.GetTableOp))
+			if err != nil {
+				clear()
+				return "", err
+			}
+		case "AddAllColumnsOp":
+			err := addAllColumns(instruction.(codegen.AddAllColumnsOp))
 			if err != nil {
 				clear()
 				return "", err

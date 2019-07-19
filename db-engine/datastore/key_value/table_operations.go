@@ -217,8 +217,11 @@ func (dt *DataTable) PutRow(row Row) error {
 	// should prob do some sort of error checking
 	// assume for now this row is valid at input
 	// just assume that deleted columns are silly
+
+	// fmt.Println(row, "gonna, put in ")
 	rowIndex := len(dt.Rows)
 	dt.Rows = append(dt.Rows, row)
+	dt.Rows[rowIndex] = row
 	for ind, colVal := range row {
 		if colVal == nil {
 			continue
@@ -233,6 +236,7 @@ func (dt *DataTable) PutRow(row Row) error {
 		}
 		dt.ColumnsMap[colName].Values[colVal.(SupportedValueType)][uint64(rowIndex)] = true
 	}
+	// fmt.Println(dt)
 	return nil
 }
 

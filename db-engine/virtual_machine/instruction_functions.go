@@ -7,6 +7,7 @@ import ( // fucking shit go is dumb
 	"iACRDBSM/db-engine/codegen"
 	"iACRDBSM/db-engine/datastore/key_value"
 	"os"
+	"sort"
 	"strconv"
 
 	"github.com/olekukonko/tablewriter"
@@ -134,8 +135,15 @@ func display() string { // return the display string
 
 	// TODO: error handle THIS SHIT THIS IS NASTY
 	if *Registers[ROWS_REG] != ALL_ROWS {
-		for _, rowIndPointer := range (*(Registers[ROWS_REG])).([]*uint32) {
-			row, _ := tableAddress.GetRow(uint64(*rowIndPointer))
+		keys := []uint32{}
+		for rowIndPointer := range (*(Registers[ROWS_REG])).(map[uint32]bool) {
+			keys = append(keys, rowIndPointer)
+		}
+		sort.Slice(keys, func(i, j int) bool {
+			return keys[i] < keys[j]
+		})
+		for _, rowIndPointer := range keys {
+			row, _ := tableAddress.GetRow(uint64(rowIndPointer))
 			for i, elem := range row {
 				if _, found := goodIndices[uint32(i)]; found {
 					asValue := elem.(key_value.SupportedValueType)
@@ -228,7 +236,14 @@ func insert(instruction codegen.InsertOp) error {
 			rowToInsert[i] = makeSupportedVal(tableColName, val)
 		}
 	}
-	return tableAddress.PutRow(rowToInsert) // should be nil?
+	// fmt.Println("THISROW", rowToInsert)
+	tableAddress.PutRow(rowToInsert) // should be nil?
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
+	// fmt.Println(*(Registers[TABLE_REG]), "table")
+	return nil
+	// UPDATE THE REGISTER WITH THE CORRECT ADDRESS
 }
 
 func makeTable(instruction codegen.MakeTableOp) error {
@@ -242,7 +257,7 @@ func makeTable(instruction codegen.MakeTableOp) error {
 		tableTypes[i] = tableType
 		// do some error handling here later
 	}
-	return DataBase.NewTable(tableName, colNames, colTypes)
+	return DataBase.NewTable(tableName, colNames, tableTypes)
 }
 
 // Straightforward instruction
@@ -263,6 +278,9 @@ func deleteRows() error {
 		tableAddress.DeleteRow(uint64(index))
 		// error handling TODO
 	}
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
 	return nil
 }
 
@@ -277,6 +295,9 @@ func deleteCols() error {
 		tableAddress.DeleteColumn(colName)
 		// error handling TODO
 	}
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
 	return nil
 
 }
@@ -284,26 +305,28 @@ func deleteCols() error {
 func updateTable(instruction codegen.UpdateTableOp) error {
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	colNamesToChange := instruction.ColNames
-	newVals := instruction.NewVals
+	colNameToChange := instruction.ColName
+	newVal := instruction.NewVal
 	// UpdateRow(rowIndex uint64, colName string, newValue SupportedValueType)
+	approproVal := makeSupportedVal(colNameToChange, newVal)
 
-	listOfPointers := *(Registers[ROWS_REG])
-	for _, indAddress := range listOfPointers.([]*uint32) {
-		index := *indAddress
-		for i := 0; i < len(colNamesToChange); i++ {
-			colName := colNamesToChange[i]
-			approproVal := makeSupportedVal(colName, newVals[i])
-			tableAddress.UpdateRow(uint64(index), colName, approproVal)
-		}
+	setOfPointers := *(Registers[ROWS_REG])
+	for indAddress := range setOfPointers.(map[uint32]bool) {
+		index := indAddress
+		tableAddress.UpdateRow(uint64(index), colNameToChange, approproVal)
 	}
+	var asInter interface{}
+	asInter = *tableAddress
+	Registers[TABLE_REG] = &asInter
 	return nil
 }
 
 func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
+	// fmt.Println(colName, valName)
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
 	colType := tableAddress.ColumnsMap[colName].Type
+	// fmt.Println(colType)
 	var asInterface interface{}
 	switch colType {
 	case "Supported-Value-Type.int":

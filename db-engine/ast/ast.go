@@ -37,7 +37,7 @@ type ColValue struct {
 /*SelectStmt -
  */
 type SelectStmt struct {
-	ColNames   []string       `(@Ident",")+`
+	ColNames   []string       `| (@Ident",")+`
 	TableNames []string       `"FROM" (@Ident",")+`
 	Conditions []*EqCondition `("WHERE" (@@",")+)?`
 }

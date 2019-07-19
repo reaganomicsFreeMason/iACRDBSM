@@ -144,4 +144,8 @@ func (o InsertColumnOp) GetOpName() string {
 	return "InsertColumnOp"
 }
 
-// ALTER TABLE TO DO
+type ClearOp struct{}
+
+func (o ClearOp) GetOpName() string {
+	return "ClearOp"
+}

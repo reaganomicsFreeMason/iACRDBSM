@@ -436,69 +436,84 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 		case "GetTableOp":
 			err := getTable(instruction.(codegen.GetTableOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "AddColumnOp":
 			err := addColumn(instruction.(codegen.AddColumnOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "AddRowOp":
 			err := addRow(instruction.(codegen.AddRowOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "FilterOp":
 			err := filter(instruction.(codegen.FilterOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "InsertOp":
 			err := insert(instruction.(codegen.InsertOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "MakeTableOp":
 			err := makeTable(instruction.(codegen.MakeTableOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "DeleteTableOp":
 			err := deleteTable(instruction.(codegen.DeleteTableOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "UpdateTableOp":
 			err := updateTable(instruction.(codegen.UpdateTableOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "DeleteRowsOp":
 			err := deleteRows()
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "DeleteColsOp":
 			err := deleteCols()
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "DeleteColFromTableOp":
 			err := deleteColFromTable(instruction.(codegen.DeleteColFromTableOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
 		case "InsertColumnOp":
 			err := insertColumn(instruction.(codegen.InsertColumnOp))
 			if err != nil {
-				fmt.Println(err.Error())
+				clear()
+				return "", err
 			}
+			insertColumn(instruction.(codegen.InsertColumnOp))
+		case "ClearOp":
+			clear()
 		case "DisplayOp":
 			res := display()
 			clear()
 			return res, nil
 		default:
-			return "", errors.New("Bad instruction shit face")
+			return "", errors.New("Invalid Instruction")
 		}
 	}
 	return "", nil

@@ -35,6 +35,7 @@ func GenByteCode(stmt *ast.SqlStmt) ([]ByteCodeOp, error) {
 	} else if stmt.TruncateTable != nil {
 		visitTruncateTable(*stmt.TruncateTable)
 	}
+	insns = append(insns, ClearOp{})
 	return insns, nil
 }
 

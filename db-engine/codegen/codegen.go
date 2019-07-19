@@ -126,7 +126,7 @@ func visitDropColumn(stmt ast.DropColumnStmt) {
 func visitDropTable(stmt ast.DropTableStmt) {
 	tableName := stmt.TableName
 	insns = append(insns, GetTableOp{tableName})
-	insns = append(insns, DeleteTableOp{})
+	insns = append(insns, DeleteTableOp{tableName})
 }
 
 func visitTruncateTable(stmt ast.TruncateTableStmt) {

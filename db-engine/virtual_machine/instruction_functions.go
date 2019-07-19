@@ -284,10 +284,19 @@ func deleteRows() error {
 	listOfPointers := *(Registers[ROWS_REG]) // list of pointers to indices
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	for indAddress := range listOfPointers.(map[uint32]bool) {
-		index := indAddress
-		tableAddress.DeleteRow(uint64(index))
-		// error handling TODO
+	if listOfPointers == ALL_ROWS {
+		numRows := tableAddress.GetNumRows()
+		for indAddress := 0; indAddress < numRows; indAddress++ {
+			index := indAddress
+			tableAddress.DeleteRow(uint64(index))
+			// error handling TODO
+		}
+	} else {
+		for indAddress := range listOfPointers.(map[uint32]bool) {
+			index := indAddress
+			tableAddress.DeleteRow(uint64(index))
+			// error handling TODO
+		}
 	}
 	var asInter interface{}
 	asInter = *tableAddress
@@ -425,29 +434,65 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 		instName := instruction.GetOpName()
 		switch instName {
 		case "GetTableOp":
-			getTable(instruction.(codegen.GetTableOp))
+			err := getTable(instruction.(codegen.GetTableOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "AddColumnOp":
-			addColumn(instruction.(codegen.AddColumnOp))
+			err := addColumn(instruction.(codegen.AddColumnOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "AddRowOp":
-			addRow(instruction.(codegen.AddRowOp))
+			err := addRow(instruction.(codegen.AddRowOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "FilterOp":
-			filter(instruction.(codegen.FilterOp))
+			err := filter(instruction.(codegen.FilterOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "InsertOp":
-			insert(instruction.(codegen.InsertOp))
+			err := insert(instruction.(codegen.InsertOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "MakeTableOp":
-			makeTable(instruction.(codegen.MakeTableOp))
+			err := makeTable(instruction.(codegen.MakeTableOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "DeleteTableOp":
-			deleteTable(instruction.(codegen.DeleteTableOp))
+			err := deleteTable(instruction.(codegen.DeleteTableOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "UpdateTableOp":
-			updateTable(instruction.(codegen.UpdateTableOp))
+			err := updateTable(instruction.(codegen.UpdateTableOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "DeleteRowsOp":
-			deleteRows()
+			err := deleteRows()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "DeleteColsOp":
-			deleteCols()
+			err := deleteCols()
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "DeleteColFromTableOp":
-			deleteColFromTable(instruction.(codegen.DeleteColFromTableOp))
+			err := deleteColFromTable(instruction.(codegen.DeleteColFromTableOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "InsertColumnOp":
-			insertColumn(instruction.(codegen.InsertColumnOp))
+			err := insertColumn(instruction.(codegen.InsertColumnOp))
+			if err != nil {
+				fmt.Println(err.Error())
+			}
 		case "DisplayOp":
 			res := display()
 			clear()

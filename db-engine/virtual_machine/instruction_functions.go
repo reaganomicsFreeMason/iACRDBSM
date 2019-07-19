@@ -438,7 +438,8 @@ func supValToString(asValue key_value.SupportedValueType) string {
 
 func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 	var err error
-	startIndex := getToken() * packetSize
+	putBack := getToken()
+	startIndex := putBack * packetSize
 	for _, instruction := range instructions {
 		instName := instruction.GetOpName()
 		switch instName {
@@ -482,18 +483,18 @@ func ExecByteCode(instructions []codegen.ByteCodeOp) (string, error) {
 		case "DisplayOp":
 			res := display(startIndex)
 			clear(startIndex)
-			putToken(startIndex)
+			putToken(putBack)
 			return res, nil
 		default:
 			return "", errors.New("Invalid Instruction")
 		}
 		if err != nil {
 			clear(startIndex)
-			putToken(startIndex)
+			putToken(putBack)
 			return "", err
 		}
 	}
-	putToken(startIndex)
+	putToken(putBack)
 	return "", nil
 }
 

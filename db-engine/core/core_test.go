@@ -34,14 +34,14 @@ func ExecuteAndShow(t *testing.T, cmdString string, tableName string) {
 		t.Log(result)
 		t.Log()
 
-		// Display specified table
-		result, err := ProcessSQLString("SELECT ALL, FROM " + tableName)
-		if err != nil {
-			t.Log("Error dumping table: " + err.Error())
-		} else {
-			t.Log("FULL TABLE OUTPUT")
-			t.Log(result)
-		}
+		// // Display specified table
+		// result, err := ProcessSQLString("SELECT ALL, FROM " + tableName)
+		// if err != nil {
+		// 	t.Log("Error dumping table: " + err.Error())
+		// } else {
+		// 	t.Log("FULL TABLE OUTPUT")
+		// 	t.Log(result)
+		// }
 	}
 }
 

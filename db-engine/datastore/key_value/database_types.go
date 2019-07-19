@@ -26,11 +26,11 @@ type ColumnInfoMap struct {
 
 // DataTable is the basic struct that represents a single data table
 type DataTable struct {
-	ColumnsMap  map[string]ColumnInfoMap // set type data structure(maps item to True since set not in go)
-	ColumnNames []string                 // deleted column is signified by empty string
-	Rows        []Row
-	DeletedRows IntegerSet
-	NumCol      int
+	columnsMap  map[string]ColumnInfoMap // set type data structure(maps item to True since set not in go)
+	columnNames []string                 // deleted column is signified by empty string
+	rows        []Row
+	deletedRows IntegerSet
+	numCol      int
 	l           sync.RWMutex
 }
 

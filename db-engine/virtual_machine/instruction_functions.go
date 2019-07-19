@@ -310,7 +310,7 @@ func makeSupportedVal(colName, valName string) key_value.SupportedValueType {
 	// fmt.Println(colName, valName)
 	table := (*(Registers[TABLE_REG])).(key_value.DataTable)
 	tableAddress := &table
-	colType := tableAddress.ColumnsMap[colName].Type
+	colType := tableAddress.columnnames[colName].Type
 	// fmt.Println(colType)
 	var asInterface interface{}
 	switch colType {

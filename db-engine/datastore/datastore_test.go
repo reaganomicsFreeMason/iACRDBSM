@@ -52,14 +52,14 @@ func TestNewTableSingleThread(t *testing.T) {
 // 	})
 // 	table, _ := testDB.GetTable("LongLiveSanjit")
 // 	fmt.Println(table.Rows)
-// 	fmt.Println(table.ColumnsMap)
+// 	fmt.Println(table.columnnames)
 // 	sanjitTable.UpdateRow(uint64(0), "Sanjit1", key_value.SupportedValueTypeImpl{"Supported-Value-Type.int", 5})
 // 	table, _ = testDB.GetTable("LongLiveSanjit")
 // 	fmt.Println(table.Rows)
-// 	fmt.Println(table.ColumnsMap)
+// 	fmt.Println(table.columnnames)
 // 	sanjitTable.DeleteColumn("Sanjit1")
 // 	fmt.Println(table.Rows)
-// 	fmt.Println(table.ColumnsMap)
+// 	fmt.Println(table.columnnames)
 // 	fmt.Println(table.ColumnNames)
 
 // 	// test update row and delete column together and shit

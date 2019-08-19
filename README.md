@@ -2,10 +2,14 @@
 The real name of this project has been rebranded to sqlHeavy for extremely technical reasons that no one really undestands.
 
 sqlHeavy is a simple relational database system written in Go for the Dropbox intern hackathon.
+
 sqlHeavy was built in under 5 days.
 sqlHeavy supports a modest subset of sql instructions including both queries and transactions.
+
 sqlHeavy syntax is almost the same as regular sql, with a few weird (we like to think of them as fun) quirks.
+
 sqlHeavy supports multiple client transactions and queries over the network via reader-writer locks.
+
 sqlHeavy works by:
   1.) recieving client command strings over network via TCP
   1.) parse query/transaction command strings into an AST

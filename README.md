@@ -1,4 +1,4 @@
-# iACRDBSM
+# sqlHeavy
 The real name of this project has been rebranded to sqlHeavy for extremely technical reasons that no one really undestands.
 
 sqlHeavy is a simple relational database system written in Go for the Dropbox intern hackathon.

@@ -11,9 +11,9 @@ sqlHeavy syntax is almost the same as regular sql, with a few weird (we like to 
 sqlHeavy supports multiple client transactions and queries over the network via reader-writer locks.
 
 sqlHeavy works by:
-  1.) recieving client command strings over network via TCP\n
-  2.) parse query/transaction command strings into an AST\n
-  3.) generate bytecode from this AST\n
+  1.) recieving client command strings over network via TCP
+  2.) parse query/transaction command strings into an AST
+  3.) generate bytecode from this AST
   4.) execute the bytecode via a virtual machine, which interacts with our simple table structured datastore to store and retrieve data.
   
 sqlHeavy was built by Carolina Ortega, Linda Gong, Charles Comiter, and Sanjit Kalapatapu.
